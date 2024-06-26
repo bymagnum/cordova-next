@@ -1,0 +1,55 @@
+{
+  "name": "cordova-next",
+  "version": "0.0.1",
+  "description": "Launch the application to develop, build with cordova and next.js (optionally add framework 7) for mobile devices and desktop applications.",
+  "bin": {
+    "nc": "./bin/nc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:bymagnum/cordova-next.git"
+  },
+  "keywords": [
+    "next",
+    "next.js",
+    "framework7",
+    "framework7-react",
+    "cordova",
+    "ecosystem:cordova",
+    "mobile",
+    "app",
+    "webapp",
+    "electron",
+    "android",
+    "ios",
+    "pwa"
+  ],
+  "author": "bymagnum",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bymagnum/cordova-next/issues"
+  },
+  "module": "./dist/index.js",
+  "homepage": "https://github.com/bymagnum/cordova-next#readme",
+  "scripts": {
+    "build": "babel ./lib --out-dir ./dist -s inline"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^12.1.0",
+    "fs-extra": "^11.2.0",
+    "http-proxy": "^1.18.1",
+    "path": "^0.12.7",
+    "shelljs": "^0.8.5"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.24.7",
+    "@babel/core": "^7.24.7",
+    "@babel/preset-env": "^7.24.7",
+    "@babel/preset-react": "^7.24.7",
+    "react": "^18.3.1"
+  }
+}
