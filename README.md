@@ -59,9 +59,9 @@ Platform | Description
 `android` | &#9745;
 `ios` | &#9744; (Work is underway)
 
-Option | Description
+Options | Description
 -- | --
-`-f7, --framework7` | Add Framework7
+`-f7, --framework7` | Add Framework7 (Running the `nc create` command)
 
 Action | Description
 -- | --
