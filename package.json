@@ -39,6 +39,7 @@
     "commander": "^12.1.0",
     "fs-extra": "^11.2.0",
     "http-proxy": "^1.18.1",
+    "loading-cli": "^1.1.2",
     "path": "^0.12.7",
     "shelljs": "^0.8.5"
   },
