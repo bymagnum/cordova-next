@@ -5,6 +5,7 @@ const path = require('path');
 const shell = require('shelljs');
 const chalk = require('chalk');
 const { EOL } = require('os');
+const loading = require('loading-cli');
 
 async function contentToRemote(cwd, packagePortHttps) {
     
@@ -107,16 +108,37 @@ async function init() {
     
         }
 
-        console.log(chalk.green('Copying the template...'));
+        console.log(chalk.green('Copying the template'));
 
         fse.copySync(ROOT_DIR, '.');
     
-        console.log(chalk.green('Installing dependencies...'));
-    
+        const load = loading({
+            'text': chalk.green('Installing dependencies...'),
+            'color': 'green',
+            'interval': 300,
+            'frames': ['←', '↖', '↑', '↗', '→', '↘', '↓', '↙']
+        });
+
+        load.start();
+        
         shell.exec('npm install', { silent: true }, function (code, stdout, stderr) {
 
-            console.log(chalk.green('Dependency installation is complete!'));
+            load.stop();
 
+            console.log(chalk.green('Dependency installation is complete'));
+
+            shell.exec('git init');
+
+            shell.exec('git add .', { silent: true }, function (code, stdout, stderr) {
+
+                shell.exec('git commit -m "init"', { silent: true }, function (code, stdout, stderr) {
+
+                    console.log(chalk.green('The commit was successfully created'));
+        
+                });
+
+            });
+    
         });
 
     } else if (pkgs.indexOf('dev') !== -1) {
