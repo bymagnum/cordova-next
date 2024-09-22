@@ -42,17 +42,17 @@ async function init() {
 
     program.command('create').description('Creates an application of the current directory, ready to work');
 
-    program.command('dev').description('Running two development servers, on http and https. The application installed for development listens to https');
+    program.command('dev').argument('<android>').description('Running two development servers, on http and https. The application installed for development listens to https');
 
-    program.command('build').description('Building a project for deployment on a device for further dev mode development');
+    program.command('build').argument('<android>').description('Building a project for deployment on a device for further dev mode development');
 
-    program.command('run').description('Full build of the debug version project');
+    program.command('run').argument('<android>').description('Full build of the debug version project');
 
-    program.command('release').description('Complete project build for release');
+    program.command('release').argument('<android>').description('Complete project build for release');
 
-    program.command('platform').description('Add / remove a platform');
+    program.command('platform').argument('<add|remove> <android>').description('Add / remove a platform');
 
-    program.command('plugin').description('Add / remove a plugin');
+    program.command('plugin').argument('<add|remove> <name of plugin or url github>').description('Add / remove a plugin');
 
     program.version(package.version, '-v, --version', 'Current version');
 
