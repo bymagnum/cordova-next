@@ -47,12 +47,12 @@ nc create
 Command | Description
 -- | --
 `nc create [option]` | Creates an application of the current directory, ready to work
-`nc dev [platform]` | Running two development servers, on http and https. The application installed for development listens to https
-`nc build [platform]` | Building a project for deployment on a device for further dev mode development
-`nc run [platform]` | Full build of the debug version project
-`nc release [platform]` | Complete project build for release
-`nc platform [action] [platform]` | Add / remove a platform
-`nc plugin [action] [plugin]` | Add / remove a plugin
+`nc dev <platform>` | Running two development servers, on http and https. The application installed for development listens to https
+`nc build <platform>` | Building a project for deployment on a device for further dev mode development
+`nc run <platform>` | Full build of the debug version project
+`nc release <platform>` | Complete project build for release
+`nc platform <action> <platform>` | Add / remove a platform
+`nc plugin <action> <plugin>` | Add / remove a plugin
 
 Platform | Description
 -- | --

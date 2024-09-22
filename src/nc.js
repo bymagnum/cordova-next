@@ -40,7 +40,7 @@ async function init() {
 
     const packagePortHttps = package?.nc?.port?.https ?? 9091;
 
-    program.command('create').description('Creates an application of the current directory, ready to work');
+    program.command('create').argument('[-f7]').description('Creates an application of the current directory, ready to work');
 
     program.command('dev').argument('<android>').description('Running two development servers, on http and https. The application installed for development listens to https');
 
