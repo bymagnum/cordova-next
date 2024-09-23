@@ -94,6 +94,14 @@ async function init() {
     
     if (pkgs.indexOf('create') !== -1) {
 
+        if (fse.existsSync('.')) {
+            
+            console.log(chalk.red('The directory is not empty'));
+
+            return;
+
+        }
+
         const f7 = options?.framework7 ?? false;
 
         let ROOT_DIR;
