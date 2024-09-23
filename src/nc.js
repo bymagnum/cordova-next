@@ -94,7 +94,9 @@ async function init() {
     
     if (pkgs.indexOf('create') !== -1) {
 
-        if (fse.existsSync('.')) {
+        const readDir = fse.readdirSync(cwd);
+
+        if (readDir.length > 0) {
             
             console.log(chalk.red('The directory is not empty'));
 
@@ -135,16 +137,18 @@ async function init() {
 
             console.log(chalk.green('Dependency installation is complete'));
 
-            shell.exec('git init');
+            shell.exec('git init', { silent: true }, function (code, stdout, stderr) {
 
-            shell.exec('git add .', { silent: true }, function (code, stdout, stderr) {
+                shell.exec('git add .', { silent: true }, function (code, stdout, stderr) {
 
-                shell.exec('git commit -m "init"', { silent: true }, function (code, stdout, stderr) {
-
-                    console.log(chalk.green('The commit was successfully created'));
-        
+                    shell.exec('git commit -m "init"', { silent: true }, function (code, stdout, stderr) {
+    
+                        console.log(chalk.green('The commit was successfully created'));
+            
+                    });
+    
                 });
-
+                
             });
     
         });
