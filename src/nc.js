@@ -43,7 +43,7 @@ async function init() {
 
     program.command('create').argument('[-f7]').description('Creates an application of the current directory, ready to work');
 
-    program.command('dev').argument('<android>').description('Running two development servers, on http and https. The application installed for development listens to https');
+    program.command('dev').argument('<android|web>').description('Running two development servers, on http and https. The application installed for development listens to https');
 
     program.command('build').argument('<android>').description('Building a project for deployment on a device for further dev mode development');
 
@@ -155,7 +155,11 @@ async function init() {
 
     } else if (pkgs.indexOf('dev') !== -1) {
 
-        if (pkgs.indexOf('android') !== -1) {
+        if (pkgs.indexOf('web') !== -1) {
+
+            process.env.CORDOVA_NEXT_PLATFORM = 'web';
+
+        } else if (pkgs.indexOf('android') !== -1) {
 
             if (!fse.existsSync(cwd + '/platforms/android')) {
 

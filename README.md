@@ -25,9 +25,10 @@ yarn global add cordova-next
 
 Platform | Description
 -- | --
+`web` | &#9745; Available during development (Work is underway)
 `android` | &#9745;
-`ios` | &#9744;
-`electron` | &#9744;
+`ios` | &#9744; (Work is underway)
+`electron` | &#9744; (Work is underway)
 
 Platforms that are not marked require improvement
 
@@ -50,7 +51,7 @@ Command | Description
 `nc dev <platform>` | Running two development servers, on http and https. The application installed for development listens to https
 `nc build <platform>` | Building a project for deployment on a device for further dev mode development
 `nc run <platform>` | Full build of the debug version project
-`nc release <platform>` | Complete project build for release
+`nc release <platform>` | Complete project build for release (Work is underway)
 `nc platform <action> <platform>` | Add / remove a platform
 `nc plugin <action> <plugin>` | Add / remove a plugin
 
@@ -58,14 +59,16 @@ Command | Description
 
 Platform | Description
 -- | --
+`web` | &#9745; Available during development
 `android` | &#9745;
 `ios` | &#9744; (Work is underway)
+`electron` | &#9744; (Work is underway)
 
 &nbsp;
 
-Options | Command | Description
--- | -- | --
-`-f7, --framework7` | `nc create` | Add Framework7
+Options | Description
+-- | --
+`-f7, --framework7` | Add Framework7 (Available `nc create`)
 
 &nbsp;
 
@@ -82,11 +85,14 @@ You can use the package as a library. At the moment, only the following React co
 
 ```
 import { ScriptCordova } from 'cordova-next';
-
-<ScriptCordova />
 ```
 
+```
+<ScriptCordova />
+```
 Imports cordova.js, a good option for using a component in one place is _document.js, but it is also possible to use it at your discretion, up to complete deletion, if you do not need it as a system script.
+
+In the process of development, `nc dev web` - cordova.js is not embedded in the page, while allowing you to easily develop an application in the browser. At the same time, you do not need to perform additional actions to remove the embedded component from the page.
 
 
 
