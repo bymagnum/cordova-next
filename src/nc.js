@@ -131,7 +131,7 @@ async function init() {
 
         load.start();
         
-        shell.exec('npm install', { silent: true }, function (code, stdout, stderr) {
+        shell.exec('npm install && npm install cordova-next', { silent: true }, function (code, stdout, stderr) {
 
             load.stop();
 
