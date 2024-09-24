@@ -54,14 +54,20 @@ Command | Description
 `nc platform <action> <platform>` | Add / remove a platform
 `nc plugin <action> <plugin>` | Add / remove a plugin
 
+&nbsp;
+
 Platform | Description
 -- | --
 `android` | &#9745;
 `ios` | &#9744; (Work is underway)
 
+&nbsp;
+
 Options | Command | Description
 -- | -- | --
 `-f7, --framework7` | `nc create` | Add Framework7
+
+&nbsp;
 
 Action | Description
 -- | --
