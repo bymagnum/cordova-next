@@ -5,7 +5,7 @@ Real-time development mode on an emulator device, phone, browser.
 This package allows you to test in real time, write code together with plugins. And only after changing/refining the plugin code will the application need to be recompiled. Therefore, you can write code calmly, with ready-made plugins in real time on the emulator with a quick page reload.
 In addition, this package has a full extension that allows you to use other packages of the framework without resorting to global changes. It is enough to remove some unnecessary details.
 
-
+_You can help the project with the amount in Telegram: @bymagnum_
 
 # Install
 
