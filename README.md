@@ -4,6 +4,7 @@ Use this package if you want to configure an application running Next, Cordova, 
 Real-time development mode on an emulator device, phone, browser.
 This package allows you to test in real time, write code together with plugins. And only after changing/refining the plugin code will the application need to be recompiled. Therefore, you can write code calmly, with ready-made plugins in real time on the emulator with a quick page reload.
 In addition, this package has a full extension that allows you to use other packages of the framework without resorting to global changes. It is enough to remove some unnecessary details.
+Added support (starting from version 0.0.4) for the Android - ADB platform. There is no ADB implementation server in this package, so it must be pre-installed on your computer. This is a client for the <a href="https://developer.android.com/studio/command-line/adb.html" target="_blank">Android Debug Bridge</a> server.
 
 _You can help the project with the amount in Telegram: @bymagnum_
 
