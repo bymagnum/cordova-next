@@ -7,13 +7,13 @@ const chalk = require('chalk');
 const { EOL } = require('os');
 const loading = require('loading-cli');
 
-async function contentToRemote(cwd, packagePortHttps) {
+async function contentToRemote(cwd, contentSrc) {
     
     const getFileConfig = await fse.promises.readFile(cwd + '/config.xml');
 
     let dataConfig = getFileConfig.toString();
 
-    dataConfig = dataConfig.replace(/<content[\S\s]*?src="[^"]+"/gmi, '<content src="https://10.0.2.2:' + packagePortHttps + '"');
+    dataConfig = dataConfig.replace(/<content[\S\s]*?src="[^"]+"/gmi, '<content src="' + contentSrc + '"');
 
     await fse.promises.writeFile(cwd + '/config.xml', dataConfig);
 
@@ -248,7 +248,7 @@ async function init() {
                 return;
             }
 
-            await contentToRemote(cwd, packagePortHttps);
+            await contentToRemote(cwd, 'https://10.0.2.2:' + packagePortHttps);
 
             shell.exec('npx cordova run android', {}, async function (code, stdout, stderr) {
 
