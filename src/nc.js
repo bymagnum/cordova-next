@@ -217,6 +217,13 @@ async function init() {
 
                     }
 
+                    // When the application is initially generated without plugins installed, the file is not generated, which causes an error to be displayed in the console
+                    if (!fse.existsSync(cwd + '/platforms/android/platform_www/cordova_plugins.js') && fse.existsSync(cwd + '/www/static/chunks') && !fse.existsSync(cwd + '/www/static/chunks/cordova_plugins.js')) {
+
+                        fse.ensureFile(cwd + '/www/static/chunks/cordova_plugins.js');
+
+                    }
+
                 }
 
             }
