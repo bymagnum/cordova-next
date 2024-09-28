@@ -6,6 +6,7 @@ const shell = require('shelljs');
 const chalk = require('chalk');
 const { EOL } = require('os');
 const loading = require('loading-cli');
+const adb = require('adbkit');
 
 async function contentToRemote(cwd, contentSrc) {
     
@@ -168,6 +169,41 @@ async function init() {
                 return;
             }
 
+            try {
+
+                const client = adb.createClient();
+
+                const list = await client.listDevices();
+
+                if (list !== null && list.length === 0) {
+                    
+                    console.log(chalk.red('The device is not connected'));
+
+                    return;
+                }
+
+                list.map(function (item) {
+
+                    const id = item?.id ?? null;
+                    const type = item?.type ?? null;
+
+                    if (!id && type !== 'device') {
+
+                        return;
+                    }
+
+                    client.reverse(id, 'tcp:' + packagePortHttp, 'tcp:' + packagePortHttp);
+                    client.reverse(id, 'tcp:' + packagePortHttps, 'tcp:' + packagePortHttps);
+
+                });
+    
+            } catch (err) {
+
+                console.error(chalk.red('ADB error: ', err));
+
+                return;
+            }
+
         } else {
 
             console.log(chalk.red('The platform is not supported'));
@@ -248,7 +284,7 @@ async function init() {
                 return;
             }
 
-            await contentToRemote(cwd, 'https://10.0.2.2:' + packagePortHttps);
+            await contentToRemote(cwd, 'https://localhost:' + packagePortHttps);
 
             shell.exec('npx cordova run android', {}, async function (code, stdout, stderr) {
 
