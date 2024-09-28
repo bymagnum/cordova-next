@@ -187,7 +187,7 @@ async function init() {
                     const id = item?.id ?? null;
                     const type = item?.type ?? null;
 
-                    if (!id && type !== 'device') {
+                    if (!id && (type !== 'device' || type !== 'emulator')) {
 
                         return;
                     }
