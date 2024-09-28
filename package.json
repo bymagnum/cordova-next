@@ -35,6 +35,7 @@
     "build": "babel ./lib --out-dir ./dist -s inline"
   },
   "dependencies": {
+    "adbkit": "^2.11.1",
     "chalk": "^4.1.2",
     "commander": "^12.1.0",
     "fs-extra": "^11.2.0",
