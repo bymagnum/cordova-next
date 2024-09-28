@@ -7,6 +7,7 @@ const chalk = require('chalk');
 const { EOL } = require('os');
 const loading = require('loading-cli');
 const adb = require('adbkit');
+const readline = require('readline');
 
 async function contentToRemote(cwd, contentSrc) {
     
@@ -30,6 +31,16 @@ async function contentToLocal(cwd) {
 
     await fse.promises.writeFile(cwd + '/config.xml', dataConfig);
 
+}
+
+function rl_input(rl, prompt) {
+    return new Promise(function (callbackFn, errorFn) {
+        rl.question(prompt, function (uinput) {
+            callbackFn(uinput);
+        }, function () {
+            errorFn();
+        });
+    });
 }
 
 async function init() {
@@ -284,9 +295,87 @@ async function init() {
                 return;
             }
 
+            const device = [];
+
+            try {
+
+                const client = adb.createClient();
+
+                const list = await client.listDevices();
+
+                if (list !== null && list.length === 0) {
+                    
+                    console.log(chalk.red('The device is not connected'));
+
+                    return;
+                }
+
+                list.map(function (item, index) {
+
+                    const id = item?.id ?? null;
+                    const type = item?.type ?? null;
+
+                    if (!id && (type !== 'device' || type !== 'emulator')) {
+
+                        return;
+                    }
+
+                    device.push(item);
+
+                });
+    
+            } catch (err) {
+
+                console.error(chalk.red('ADB error: ', err));
+
+                return;
+            }
+
+            let runCommand = 'npx cordova run android';
+
+            if (device.length > 1) {
+                
+                let text = chalk.yellow('Select a device:\n');
+
+                device.forEach((item, index) => {
+
+                    text += chalk.yellow(index + '. ' + item.id + '\n');
+
+                });
+
+                text += chalk.yellow('Enter the device number: ');
+
+                const rl = readline.createInterface({
+                    input: process.stdin,
+                    output: process.stdout
+                });
+
+                const number = await rl_input(rl, text);
+
+                rl.close();
+
+                const deviceSelect = device[number] ?? null;
+
+                if (!deviceSelect) {
+
+                    console.log(chalk.red('Device number <' + number + '> does not exist'));
+
+                    return;
+                }
+
+                const id = deviceSelect?.id ?? null;
+
+                if (id) {
+
+                    runCommand = runCommand + ' --target="' + id + '"';
+
+                }
+
+            }
+
             await contentToRemote(cwd, 'https://localhost:' + packagePortHttps);
 
-            shell.exec('npx cordova run android', {}, async function (code, stdout, stderr) {
+            shell.exec(runCommand, {}, async function (code, stdout, stderr) {
 
                 await contentToLocal(cwd);
 
@@ -298,7 +387,7 @@ async function init() {
                 }
 
             });
-
+            
         } else {
 
             console.log(chalk.red('The platform is not supported'));
