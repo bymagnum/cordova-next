@@ -27,7 +27,7 @@ yarn global add cordova-next
 Platform | Description
 -- | --
 `web` | &#9745; Available during development (Work is underway)
-`android` | &#9745;
+`android` | &#9745; (Work is underway)
 `ios` | &#9744; (Work is underway)
 `electron` | &#9744; (Work is underway)
 
@@ -60,8 +60,8 @@ Command | Description
 
 Platform | Description
 -- | --
-`web` | &#9745; Available during development
-`android` | &#9745;
+`web` | &#9745; Available during development (Work is underway)
+`android` | &#9745; (Work is underway)
 `ios` | &#9744; (Work is underway)
 `electron` | &#9744; (Work is underway)
 
@@ -78,7 +78,7 @@ Action | Description
 `add` | Add
 `remove` | Remove
 
-
+&nbsp;
 
 # cordova-next as a library
 
@@ -95,7 +95,7 @@ Imports cordova.js, a good option for using a component in one place is _documen
 
 In the process of development, `nc dev web` - cordova.js is not embedded in the page, while allowing you to easily develop an application in the browser. At the same time, you do not need to perform additional actions to remove the embedded component from the page.
 
-
+&nbsp;
 
 # Package.json in the deployed application
 
@@ -104,7 +104,7 @@ Parameter | Default | Description
 `nc.port.http` | 9090 | Development port http
 `nc.port.https` | 9091 | Development port https
 
-
+&nbsp;
 
 # General information
 
