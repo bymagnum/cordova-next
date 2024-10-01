@@ -79,6 +79,7 @@ Action | Description
 `remove` | Remove
 
 &nbsp;
+&nbsp;
 
 # cordova-next as a library
 
@@ -104,6 +105,7 @@ Parameter | Default | Description
 `nc.port.http` | 9090 | Development port http
 `nc.port.https` | 9091 | Development port https
 
+&nbsp;
 &nbsp;
 
 # General information
