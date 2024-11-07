@@ -184,35 +184,42 @@ async function init() {
 
                 const client = adb.createClient();
 
-                const list = await client.listDevices();
+                let list = await client.listDevices();
+
+                list = list.filter(item => item.type !== 'offline');
 
                 if (list !== null && list.length === 0) {
                     
                     console.log(chalk.red('The device is not connected'));
 
                     return;
+
+                } else {
+
+                    list.map(function (item) {
+
+                        const id = item?.id ?? null;
+                        const type = item?.type ?? null;
+
+                        if (!id) return;
+
+                        if (type === 'device' || type === 'emulator') {
+
+                            client.reverse(id, 'tcp:' + packagePortHttp, 'tcp:' + packagePortHttp);
+                            client.reverse(id, 'tcp:' + packagePortHttps, 'tcp:' + packagePortHttps);
+                            
+                        }
+
+                    });
+
                 }
 
-                list.map(function (item) {
-
-                    const id = item?.id ?? null;
-                    const type = item?.type ?? null;
-
-                    if (!id && (type !== 'device' || type !== 'emulator')) {
-
-                        return;
-                    }
-
-                    client.reverse(id, 'tcp:' + packagePortHttp, 'tcp:' + packagePortHttp);
-                    client.reverse(id, 'tcp:' + packagePortHttps, 'tcp:' + packagePortHttps);
-
-                });
-    
             } catch (err) {
 
                 console.error(chalk.red('ADB error: ', err));
 
                 return;
+
             }
 
         } else {
@@ -220,6 +227,7 @@ async function init() {
             console.log(chalk.red('The platform is not supported'));
 
             process.exit(1);
+
         } 
 
         const childDev = shell.exec('npx next dev -p ' + packagePortHttp, { async: true });
@@ -301,28 +309,34 @@ async function init() {
 
                 const client = adb.createClient();
 
-                const list = await client.listDevices();
+                let list = await client.listDevices();
+
+                list = list.filter(item => item.type !== 'offline');
 
                 if (list !== null && list.length === 0) {
                     
                     console.log(chalk.red('The device is not connected'));
 
                     return;
+
+                } else {
+
+                    list.map(function (item, index) {
+
+                        const id = item?.id ?? null;
+                        const type = item?.type ?? null;
+
+                        if (!id) return;
+                        
+                        if (type === 'device' || type === 'emulator') {
+
+                            device.push(item);
+
+                        }
+
+                    });
+                    
                 }
-
-                list.map(function (item, index) {
-
-                    const id = item?.id ?? null;
-                    const type = item?.type ?? null;
-
-                    if (!id && (type !== 'device' || type !== 'emulator')) {
-
-                        return;
-                    }
-
-                    device.push(item);
-
-                });
     
             } catch (err) {
 
