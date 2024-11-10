@@ -47,6 +47,13 @@ async function init() {
     
     const cwd = process.cwd();
     
+    if (!fse.existsSync(path.join(cwd, 'package.json'))) {
+
+        console.log(chalk.red('The project is missing package.json'));
+
+        return;
+    }
+
     const package = require(path.join(cwd, 'package.json'));
 
     const packagePortHttp = package?.nc?.port?.http ?? 9090;
