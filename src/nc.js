@@ -47,7 +47,7 @@ async function init() {
     
     const cwd = process.cwd();
     
-    const package = require(path.join(path.dirname(__dirname), 'package.json'));
+    const package = require(path.join(cwd, 'package.json'));
 
     const packagePortHttp = package?.nc?.port?.http ?? 9090;
 
