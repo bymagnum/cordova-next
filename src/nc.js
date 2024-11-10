@@ -238,9 +238,7 @@ async function init() {
 
             if (data.indexOf(packagePortHttp) !== -1) {
 
-                console.log(chalk.green('- Local: https://localhost:' + packagePortHttps));
-
-                proxy.createServer({
+                const server = proxy.createServer({
                     xfwd: true,
                     ws: true,
                     target: {
@@ -258,7 +256,11 @@ async function init() {
         
                     console.log(chalk.red('Request failed to ' + e.name + ': ' + e.code));
         
-                }).listen(packagePortHttps);
+                });
+                    
+                console.log(chalk.green('- Local: https://localhost:' + packagePortHttps));
+                    
+                server.listen(packagePortHttps);
 
             }
 
