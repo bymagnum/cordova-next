@@ -51,7 +51,8 @@ async function init() {
 
         console.log(chalk.red('The project is missing package.json'));
 
-        return;
+        process.exit(1);
+        
     }
 
     const package = require(path.join(cwd, 'package.json'));
