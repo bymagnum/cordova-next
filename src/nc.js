@@ -331,6 +331,29 @@ async function init() {
 
                     }
 
+                    const browserWindow = package?.nc?.electron?.browserWindow || {};
+
+                    if (fse.existsSync(path.join(cwd, '/platforms/electron/platform_www/cdv-electron-settings.json'))) {
+                        
+                        const defaultConfig = {
+                            browserWindow: {
+                                width: 800,
+                                height: 600,
+                                webPreferences: {
+                                    devTools: true,
+                                    nodeIntegration: false
+                                }
+                            }
+                        }
+        
+                        const newBrowserWindow = {
+                            browserWindow: Object.assign({}, defaultConfig.browserWindow, browserWindow)
+                        };
+        
+                        await fse.promises.writeFile(cwd + '/platforms/electron/platform_www/cdv-electron-settings.json', JSON.stringify(newBrowserWindow, null, 4));
+                
+                    }
+
                     await contentToRemote(cwd, 'https://localhost:' + packagePortHttps);
 
                     const childEletron = shell.exec('npx cordova run electron --nobuild', { async: true, silent: true });
