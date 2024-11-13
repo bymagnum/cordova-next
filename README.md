@@ -26,10 +26,10 @@ yarn global add cordova-next
 
 Platform | Description
 -- | --
-`web` | &#9745; Available during development (Work is underway)
+`web` | &#9745; Available during development
 `android` | &#9745; (Work is underway)
 `ios` | &#9744; (Work is underway)
-`electron` | &#9744; (Work is underway)
+`electron` | &#9745; (Work is underway)
 
 Platforms that are not marked require improvement
 
@@ -60,10 +60,10 @@ Command | Description
 
 Platform | Description
 -- | --
-`web` | &#9745; Available during development (Work is underway)
+`web` | &#9745; Available during development
 `android` | &#9745; (Work is underway)
 `ios` | &#9744; (Work is underway)
-`electron` | &#9744; (Work is underway)
+`electron` | &#9745; (Work is underway)
 
 &nbsp;
 
@@ -104,6 +104,8 @@ Parameter | Default | Description
 -- | -- | --
 `nc.port.http` | 9090 | Development port http
 `nc.port.https` | 9091 | Development port https
+`nc.electron.browserWindow` | `browserWindow: { width: 800, height: 600, webPreferences: {devTools: true, nodeIntegration: false}` | Electron options
+`nc.electron.browserWindowInstance.loadURL.url` | `index.html` | Except for the development mode, the default page is
 
 &nbsp;
 &nbsp;

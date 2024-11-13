@@ -43,6 +43,31 @@ function rl_input(rl, prompt) {
     });
 }
 
+const getAllFiles = function(dirPath, arrayOfFiles, level, slash = '') {
+    const files = fse.readdirSync(dirPath);
+    arrayOfFiles = arrayOfFiles || [];
+    level = level + 1 || 0;
+    slash = level > 0 ? slash + '/..': '';
+    files.forEach(function(file) {
+        if (fse.statSync(dirPath + '/' + file).isDirectory()) {
+            arrayOfFiles = getAllFiles(dirPath + '/' + file, arrayOfFiles, level, slash);
+        } else {
+            if (
+                path.extname(file) == '.html' || path.extname(file) == '.css'
+            ) {
+                // arrayOfFiles.push(path.join(dirPath, '/', file));
+                arrayOfFiles.push({
+                    path: dirPath,
+                    file,
+                    level,
+                    slash: '.' + slash
+                });
+            }
+        }
+    });
+    return arrayOfFiles;
+}
+
 async function init() {
     
     const cwd = process.cwd();
@@ -52,7 +77,7 @@ async function init() {
         console.log(chalk.red('The project is missing package.json'));
 
         process.exit(1);
-        
+
     }
 
     const package = require(path.join(cwd, 'package.json'));
@@ -63,11 +88,11 @@ async function init() {
 
     program.command('create').argument('[-f7]').description('Creates an application of the current directory, ready to work');
 
-    program.command('dev').argument('<android|web>').description('Running two development servers, on http and https. The application installed for development listens to https');
+    program.command('dev').argument('<android|web|electron>').description('Running two development servers, on http and https. The application installed for development listens to https');
 
     program.command('build').argument('<android>').description('Building a project for deployment on a device for further dev mode development');
 
-    program.command('run').argument('<android>').description('Full build of the debug version project');
+    program.command('run').argument('<android|electron>').description('Full build of the debug version project');
 
     program.command('release').argument('<android>').description('Complete project build for release');
 
@@ -230,6 +255,8 @@ async function init() {
 
             }
 
+        } else if (pkgs.indexOf('electron') !== -1) {
+
         } else {
 
             console.log(chalk.red('The platform is not supported'));
@@ -240,7 +267,7 @@ async function init() {
 
         const childDev = shell.exec('npx next dev -p ' + packagePortHttp, { async: true });
 
-        childDev.stdout.on('data', function (data) {
+        childDev.stdout.on('data', async function (data) {
             
             data = data.toString().toLowerCase();
 
@@ -289,6 +316,45 @@ async function init() {
 
                     }
 
+                } else if (pkgs.indexOf('electron') !== -1) {
+
+                    if (fse.existsSync(cwd + '/platforms/electron/platform_www') && fse.existsSync(cwd + '/www/static/chunks')) {
+
+                        fse.copySync(cwd + '/platforms/electron/platform_www', 'www/static/chunks');
+
+                    }
+
+                    // When the application is initially generated without plugins installed, the file is not generated, which causes an error to be displayed in the console
+                    if (!fse.existsSync(cwd + '/platforms/electron/platform_www/cordova_plugins.js') && fse.existsSync(cwd + '/www/static/chunks') && !fse.existsSync(cwd + '/www/static/chunks/cordova_plugins.js')) {
+
+                        fse.ensureFile(cwd + '/www/static/chunks/cordova_plugins.js');
+
+                    }
+
+                    await contentToRemote(cwd, 'https://localhost:' + packagePortHttps);
+
+                    const childEletron = shell.exec('npx cordova run electron --nobuild', { async: true, silent: true });
+
+                    childEletron.stdout.on('data', async function (data) {
+
+                        await contentToLocal(cwd);
+
+                        console.log(chalk.green('- Electron started'));
+
+                        data = data.trim();
+
+                        if (!data) return;
+                        
+                        console.log('Electron: ', data);
+
+                    });
+
+                    childEletron.stderr.on('data', function (data) {
+
+                        console.log(chalk.yellow('Electron: ') + data);
+
+                    });
+        
                 }
 
             }
@@ -411,7 +477,7 @@ async function init() {
                 }
 
             });
-            
+
         } else {
 
             console.log(chalk.red('The platform is not supported'));
@@ -442,6 +508,86 @@ async function init() {
             shell.exec('npx next build');
 
             shell.exec('npx cordova run android');
+        
+        } else if (pkgs.indexOf('electron') !== -1) {
+        
+            if (!fse.existsSync(cwd + '/platforms/electron')) {
+
+                console.log(chalk.red('No platforms added to this project. Please use `nc platform add <platform>`.'));
+
+                return;
+            }
+ 
+            if (!fse.existsSync(cwd + '/config.xml')) {
+
+                console.log(chalk.red('config.xml does not exist'));
+
+                return;
+            }
+
+            const loadURL = package?.nc?.electron?.browserWindowInstance?.loadURL?.url ?? 'index.html';
+
+            await contentToRemote(cwd, loadURL);
+
+            shell.exec('npx next build');
+
+            const getFileCdvElectronMain = await fse.promises.readFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js');
+
+            let dataCdvElectronMain = getFileCdvElectronMain.toString();
+
+            if (dataCdvElectronMain.indexOf('cdvElectronSettings.scheme') !== -1) {
+
+                dataCdvElectronMain = dataCdvElectronMain.replace(/const\s+scheme\s+=\s+cdvElectronSettings\.scheme(;)?/gmi, 'const scheme = \'app\';');
+
+                await fse.promises.writeFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js', dataCdvElectronMain);
+
+            }
+
+            // When the application is initially generated without plugins installed, the file is not generated, which causes an error to be displayed in the console
+            if (!fse.existsSync(cwd + '/platforms/electron/platform_www/cordova_plugins.js')) {
+
+                await fse.ensureFile(cwd + '/platforms/electron/platform_www/cordova_plugins.js');
+
+            }
+
+            const browserWindow = package?.nc?.electron?.browserWindow || {};
+
+            if (fse.existsSync(path.join(cwd, '/platforms/electron/platform_www/cdv-electron-settings.json'))) {
+                
+                const defaultConfig = {
+                    browserWindow: {
+                        width: 800,
+                        height: 600,
+                        webPreferences: {
+                            devTools: true,
+                            nodeIntegration: false
+                        }
+                    }
+                }
+
+                const newBrowserWindow = {
+                    browserWindow: Object.assign({}, defaultConfig.browserWindow, browserWindow)
+                };
+
+                await fse.promises.writeFile(cwd + '/platforms/electron/platform_www/cdv-electron-settings.json', JSON.stringify(newBrowserWindow, null, 4));
+        
+            }
+
+            shell.exec('npx cordova build electron --debug');
+
+            const getFileCdvElectronMain2 = await fse.promises.readFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js');
+
+            let dataCdvElectronMain2 = getFileCdvElectronMain2.toString();
+
+            if (dataCdvElectronMain2.indexOf('\'app\'') !== -1) {
+
+                dataCdvElectronMain2 = dataCdvElectronMain2.replace(/const\s+scheme\s+=\s+\'app\'(;)?/gmi, 'const scheme = cdvElectronSettings.scheme;');
+
+                await fse.promises.writeFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js', dataCdvElectronMain2);
+
+            }
+
+            await contentToLocal(cwd);
 
         } else {
 
@@ -493,6 +639,42 @@ async function init() {
                         dataBuildGradle = dataBuildGradle.replace(/^(.+)namespace\s+cordovaConfig\.PACKAGE_NAMESPACE/gmi, '$1namespace cordovaConfig.PACKAGE_NAMESPACE' + EOL + EOL + '$1aaptOptions {' + EOL + '$1$1ignoreAssetsPattern \'!.svn:!.git:!.ds_store:!*.scc:.*:build\' ' + EOL + '$1}');
 
                         await fse.promises.writeFile(cwd + '/platforms/android/app/build.gradle', dataBuildGradle);
+
+                    }
+
+                }
+
+            }
+
+        } else if (pkgs.indexOf('electron') !== -1) {
+
+            shell.exec('npx cordova platform ' + action + ' electron');
+
+            if (action === 'add') {
+
+                if (fse.existsSync(cwd + '/platforms/electron/platform_www/cdv-electron-main.js')) {
+
+                    const getFileCdvElectronMain = await fse.promises.readFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js');
+
+                    let dataCdvElectronMain = getFileCdvElectronMain.toString();
+
+                    if (dataCdvElectronMain.indexOf('ignore-certificate-errors') === -1) {
+
+                        dataCdvElectronMain = dataCdvElectronMain.replace(/require\('electron'\)(;)?/gmi, 'require(\'electron\');' + EOL + EOL + 'app.commandLine.appendSwitch(\'ignore-certificate-errors\');' + EOL + EOL);
+
+                        await fse.promises.writeFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js', dataCdvElectronMain);
+
+                    }
+
+                    const getFileCdvElectronMain2 = await fse.promises.readFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js');
+
+                    let dataCdvElectronMain2 = getFileCdvElectronMain2.toString();
+
+                    if (dataCdvElectronMain2.indexOf('supportFetchAPI') === -1) {
+
+                        dataCdvElectronMain2 = dataCdvElectronMain2.replace(/secure: true/gmi, 'secure: true, supportFetchAPI: true ');
+
+                        await fse.promises.writeFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js', dataCdvElectronMain2);
 
                     }
 
