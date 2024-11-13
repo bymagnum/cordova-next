@@ -351,6 +351,19 @@ async function init() {
 
                     childEletron.stderr.on('data', function (data) {
 
+                        data = data.trim();
+
+                        if (!data) return;
+
+                        const dataError = data.toString().toLowerCase();
+
+                        if (dataError.indexOf('error') !== -1) {
+
+                            console.log(chalk.red(data));
+
+                            return;
+                        }
+
                         console.log(chalk.yellow('Electron: ') + data);
 
                     });
