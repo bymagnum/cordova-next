@@ -378,9 +378,7 @@ async function init() {
 
                         if (!data) return;
 
-                        const dataError = data.toString().toLowerCase();
-
-                        if (dataError.indexOf('error') !== -1) {
+                        if (data.indexOf('Error:') !== -1) {
 
                             console.log(chalk.red(data));
 
