@@ -1,6 +1,6 @@
 {
   "name": "cordova-next",
-  "version": "0.0.4",
+  "version": "1.0.0",
   "description": "Launch the application to develop, build with cordova and next.js (optionally add framework 7) for mobile devices and desktop applications.",
   "bin": {
     "nc": "./bin/nc"
