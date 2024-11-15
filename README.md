@@ -105,7 +105,7 @@ Parameter | Default | Description
 `nc.port.http` | 9090 | Development port http
 `nc.port.https` | 9091 | Development port https
 `nc.electron.browserWindow` | Cordova Electron | Electron options
-`nc.electron. browserWindowInstance. loadURL.url` | `index.html` | Except for the development mode, the default page is
+`nc.electron.browserWindowInstance.loadURL.url` | `index.html` | Except for the development mode, the default page is
 
 &nbsp;
 &nbsp;
