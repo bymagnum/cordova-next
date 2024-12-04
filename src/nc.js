@@ -642,6 +642,86 @@ async function init() {
 
         if (pkgs.indexOf('android') !== -1) {
 
+        } else if (pkgs.indexOf('electron') !== -1) {
+        
+            if (!fse.existsSync(cwd + '/platforms/electron')) {
+
+                console.log(chalk.red('No platforms added to this project. Please use `nc platform add <platform>`.'));
+
+                return;
+            }
+ 
+            if (!fse.existsSync(cwd + '/config.xml')) {
+
+                console.log(chalk.red('config.xml does not exist'));
+
+                return;
+            }
+
+            const loadURL = packageProject?.nc?.electron?.browserWindowInstance?.loadURL?.url ?? 'index.html';
+
+            await contentToRemote(cwd, loadURL);
+
+            shell.exec('npx next build');
+
+            const getFileCdvElectronMain = await fse.promises.readFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js');
+
+            let dataCdvElectronMain = getFileCdvElectronMain.toString();
+
+            if (dataCdvElectronMain.indexOf('cdvElectronSettings.scheme') !== -1) {
+
+                dataCdvElectronMain = dataCdvElectronMain.replace(/const\s+scheme\s+=\s+cdvElectronSettings\.scheme(;)?/gmi, 'const scheme = \'app\';');
+
+                await fse.promises.writeFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js', dataCdvElectronMain);
+
+            }
+
+            // When the application is initially generated without plugins installed, the file is not generated, which causes an error to be displayed in the console
+            if (!fse.existsSync(cwd + '/platforms/electron/platform_www/cordova_plugins.js')) {
+
+                await fse.ensureFile(cwd + '/platforms/electron/platform_www/cordova_plugins.js');
+
+            }
+
+            const browserWindow = packageProject?.nc?.electron?.browserWindow || {};
+
+            if (fse.existsSync(path.join(cwd, '/platforms/electron/platform_www/cdv-electron-settings.json'))) {
+                
+                const defaultConfig = {
+                    browserWindow: {
+                        width: 800,
+                        height: 600,
+                        webPreferences: {
+                            devTools: false,
+                            nodeIntegration: false
+                        },
+                        autoHideMenuBar: true
+                    }
+                }
+
+                const newBrowserWindow = {
+                    browserWindow: Object.assign({}, defaultConfig.browserWindow, browserWindow)
+                };
+
+                await fse.promises.writeFile(cwd + '/platforms/electron/platform_www/cdv-electron-settings.json', JSON.stringify(newBrowserWindow, null, 4));
+        
+            }
+
+            shell.exec('npx cordova build electron --release');
+
+            const getFileCdvElectronMain2 = await fse.promises.readFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js');
+
+            let dataCdvElectronMain2 = getFileCdvElectronMain2.toString();
+
+            if (dataCdvElectronMain2.indexOf('\'app\'') !== -1) {
+
+                dataCdvElectronMain2 = dataCdvElectronMain2.replace(/const\s+scheme\s+=\s+\'app\'(;)?/gmi, 'const scheme = cdvElectronSettings.scheme;');
+
+                await fse.promises.writeFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js', dataCdvElectronMain2);
+
+            }
+
+            await contentToLocal(cwd);
 
         } else {
 
