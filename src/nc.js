@@ -292,8 +292,8 @@ async function init() {
                         'Connection': 'Upgrade'
                     },
                     ssl: {
-                        key: fse.readFileSync(path.join(path.dirname(__dirname), 'resources/localhost-key.pem'), 'utf8'),
-                        cert: fse.readFileSync(path.join(path.dirname(__dirname), 'resources/localhost.pem'), 'utf8')
+                        key: fse.readFileSync(path.join(path.dirname(__dirname), 'resources/server.key'), 'utf8'),
+                        cert: fse.readFileSync(path.join(path.dirname(__dirname), 'resources/server.crt'), 'utf8')
                     }
                 }).on('error', function (e) {
         
