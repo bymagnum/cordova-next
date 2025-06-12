@@ -265,6 +265,13 @@ async function init() {
 
         } else if (pkgs.indexOf('electron') !== -1) {
 
+            if (!fse.existsSync(cwd + '/platforms/electron')) {
+
+                console.log(chalk.red('No platforms added to this project. Please use `nc platform add <platform>`'));
+
+                return;
+            }
+
         } else {
 
             console.log(chalk.red('The platform is not supported'));
