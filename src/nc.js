@@ -151,7 +151,7 @@ async function init() {
 
         if (!fse.existsSync(path.join(cwd, 'nc.config.json'))) {
 
-            console.log(chalk.red('The project is missing package.json'));
+            console.log(chalk.red('The project is missing nc.config.json'));
     
             process.exit(1);
     
