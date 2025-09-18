@@ -1,6 +1,6 @@
 # Cordova and Next.js. Optional - Framework7
 
-Use this package if you want to configure an application running Next, Cordova, optionally Framework 7.
+Use this package if you want to configure an application running Next, Cordova.
 Real-time development mode on an emulator device, phone, browser.
 This package allows you to test in real time, write code together with plugins. And only after changing/refining the plugin code will the application need to be recompiled. Therefore, you can write code calmly, with ready-made plugins in real time on the emulator with a quick page reload.
 In addition, this package has a full extension that allows you to use other packages of the framework without resorting to global changes. It is enough to remove some unnecessary details.
@@ -48,7 +48,7 @@ nc create
 
 Command | Description
 -- | --
-`nc create [option]` | Creates an application of the current directory, ready to work
+`nc create` | Creates an application of the current directory, ready to work
 `nc dev <platform>` | Running two development servers, on http and https. The application installed for development listens to https
 `nc build <platform>` | Building a project for deployment on a device for further dev mode development
 `nc run <platform>` | Full build of the debug version project
@@ -64,12 +64,6 @@ Platform | Description
 `android` | &#9745; (Work is underway)
 `ios` | &#9744; (Work is underway)
 `electron` | &#9745; (Work is underway)
-
-&nbsp;
-
-Options | Description
--- | --
-`-f7, --framework7` | Add Framework7 (Available `nc create`)
 
 &nbsp;
 
@@ -120,11 +114,9 @@ Commands that you can add:
 
 2. [NextJS](https://nextjs.org/docs/getting-started)
 
-3. Use the documentation for building the application [Framework7](https://framework7.io/react/)
-
 Do not try to create an application again using the "create next-app" or "cordova create" commands, everything you need is already present in this package, and you only need to work on your application.
 
-Everything else - You can use it as if you used cordova, next, framework 7 separately.
+Everything else - You can use it as if you used cordova, next.
 
 Two servers are used in this package for the following purposes: WebRTC requires an SSL connection, as well as several other technologies that require a secure connection and do not allow development without SSL. Https is also a direct working ready-made tool.
 

@@ -74,7 +74,7 @@ async function init() {
     
     packageRoot = require('./../package.json');
 
-    program.command('create').argument('[-f7]').description('Creates an application of the current directory, ready to work');
+    program.command('create').description('Creates an application of the current directory, ready to work');
 
     program.command('dev').argument('<android|web|electron>').description('Running two development servers, on http and https. The application installed for development listens to https');
 
@@ -90,13 +90,9 @@ async function init() {
 
     program.version(packageRoot.version, '-v, --version', 'Current version');
 
-    program.option('-f7, --framework7', 'Add Framework7');
-
     program.parse(process.argv);
 
     const pkgs = program.args;
-
-    const options = program.opts();
 
     process.on('SIGINT', async function () {
 
@@ -157,19 +153,7 @@ async function init() {
 
         }
 
-        const f7 = options?.framework7 ?? false;
-
-        let ROOT_DIR;
-
-        if (f7) {
-    
-            ROOT_DIR = path.join(path.dirname(__dirname), 'template/cnf/');
-    
-        } else {
-    
-            ROOT_DIR = path.join(path.dirname(__dirname), 'template/cn/');
-    
-        }
+        const ROOT_DIR = path.join(path.dirname(__dirname), 'template/cordova-next/');
 
         console.log(chalk.green('Copying the template'));
 
