@@ -1,0 +1,12 @@
+{
+  "port": {
+    "http": 9090,
+    "https": 9091
+  },
+  "electron": {
+    "browserWindow": {
+      "width": 1800,
+      "height": 1600
+    }
+  }
+}

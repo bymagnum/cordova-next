@@ -4,12 +4,6 @@
   "version": "0.0.1",
   "scripts": {
   },
-  "nc": {
-    "port": {
-        "http": 9090,
-        "https": 9091
-    }
-  },
   "dependencies": {
     "next": "15.5.3",
     "react": "19.1.0",

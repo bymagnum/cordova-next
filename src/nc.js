@@ -145,11 +145,11 @@ async function init() {
         process.exit(1);
     });
 
-    let packageProject, packageProjectPortHttp, packageProjectPortHttps;
+    let ncConfig, ncConfigPortHttp, ncConfigPortHttps;
     
     if (pkgs.indexOf('create') === -1) {
 
-        if (!fse.existsSync(path.join(cwd, 'package.json'))) {
+        if (!fse.existsSync(path.join(cwd, 'nc.config.json'))) {
 
             console.log(chalk.red('The project is missing package.json'));
     
@@ -157,11 +157,11 @@ async function init() {
     
         }
     
-        packageProject = require(path.join(cwd, 'package.json'));
+        ncConfig = require(path.join(cwd, 'nc.config.json'));
     
-        packageProjectPortHttp = packageProject?.nc?.port?.http ?? 9090;
+        ncConfigPortHttp = ncConfig?.port?.http ?? 9090;
     
-        packageProjectPortHttps = packageProject?.nc?.port?.https ?? 9091;
+        ncConfigPortHttps = ncConfig?.port?.https ?? 9091;
     
     }
     
@@ -256,8 +256,8 @@ async function init() {
 
                         if (type === 'device' || type === 'emulator') {
 
-                            client.reverse(id, 'tcp:' + packageProjectPortHttp, 'tcp:' + packageProjectPortHttp);
-                            client.reverse(id, 'tcp:' + packageProjectPortHttps, 'tcp:' + packageProjectPortHttps);
+                            client.reverse(id, 'tcp:' + ncConfigPortHttp, 'tcp:' + ncConfigPortHttp);
+                            client.reverse(id, 'tcp:' + ncConfigPortHttps, 'tcp:' + ncConfigPortHttps);
                             
                         }
 
@@ -290,20 +290,20 @@ async function init() {
 
         } 
 
-        const childDev = shell.exec('npx next dev -p ' + packageProjectPortHttp, { async: true });
+        const childDev = shell.exec('npx next dev -p ' + ncConfigPortHttp, { async: true });
 
         childDev.stdout.on('data', async function (data) {
             
             data = data.toString().toLowerCase();
 
-            if (data.indexOf(packageProjectPortHttp) !== -1) {
+            if (data.indexOf(ncConfigPortHttp) !== -1) {
 
                 const server = proxy.createServer({
                     xfwd: true,
                     ws: true,
                     target: {
                         host: 'localhost',
-                        port: packageProjectPortHttp
+                        port: ncConfigPortHttp
                     },
                     headers: {
                         'Connection': 'Upgrade'
@@ -318,9 +318,9 @@ async function init() {
         
                 });
                     
-                console.log(chalk.green('- Local: https://localhost:' + packageProjectPortHttps));
+                console.log(chalk.green('- Local: https://localhost:' + ncConfigPortHttps));
                     
-                server.listen(packageProjectPortHttps);
+                server.listen(ncConfigPortHttps);
 
             }
 
@@ -356,7 +356,7 @@ async function init() {
 
                     }
 
-                    const browserWindow = packageProject?.nc?.electron?.browserWindow || {};
+                    const browserWindow = ncConfig?.electron?.browserWindow || {};
 
                     if (fse.existsSync(path.join(cwd, '/platforms/electron/platform_www/cdv-electron-settings.json'))) {
                         
@@ -379,7 +379,7 @@ async function init() {
                 
                     }
 
-                    await contentToRemote(cwd, 'https://localhost:' + packageProjectPortHttps);
+                    await contentToRemote(cwd, 'https://localhost:' + ncConfigPortHttps);
 
                     const childEletron = shell.exec('npx cordova run electron --nobuild', { async: true, silent: true });
 
@@ -522,7 +522,7 @@ async function init() {
 
             }
 
-            await contentToRemote(cwd, 'https://localhost:' + packageProjectPortHttps);
+            await contentToRemote(cwd, 'https://localhost:' + ncConfigPortHttps);
 
             shell.exec(runCommand, {}, async function (code, stdout, stderr) {
 
@@ -584,7 +584,7 @@ async function init() {
                 return;
             }
 
-            const loadURL = packageProject?.nc?.electron?.browserWindowInstance?.loadURL?.url ?? 'index.html';
+            const loadURL = ncConfig?.electron?.browserWindowInstance?.loadURL?.url ?? 'index.html';
 
             await contentToRemote(cwd, loadURL);
 
@@ -609,7 +609,7 @@ async function init() {
 
             }
 
-            const browserWindow = packageProject?.nc?.electron?.browserWindow || {};
+            const browserWindow = ncConfig?.electron?.browserWindow || {};
 
             if (fse.existsSync(path.join(cwd, '/platforms/electron/platform_www/cdv-electron-settings.json'))) {
                 
@@ -675,7 +675,7 @@ async function init() {
                 return;
             }
 
-            const loadURL = packageProject?.nc?.electron?.browserWindowInstance?.loadURL?.url ?? 'index.html';
+            const loadURL = ncConfig?.electron?.browserWindowInstance?.loadURL?.url ?? 'index.html';
 
             await contentToRemote(cwd, loadURL);
 
@@ -700,7 +700,7 @@ async function init() {
 
             }
 
-            const browserWindow = packageProject?.nc?.electron?.browserWindow || {};
+            const browserWindow = ncConfig?.electron?.browserWindow || {};
 
             if (fse.existsSync(path.join(cwd, '/platforms/electron/platform_www/cdv-electron-settings.json'))) {
                 
