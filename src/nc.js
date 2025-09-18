@@ -1,3 +1,4 @@
+const CORDOVA_REQUIRED_VERSION = '12.0.0 (cordova-lib@12.0.2)';
 const { program } = require('commander');
 const fse = require('fs-extra');
 const proxy = require('http-proxy');
@@ -66,6 +67,29 @@ const getAllFiles = function(dirPath, arrayOfFiles, level, slash = '') {
         }
     });
     return arrayOfFiles;
+}
+
+function checkGlobalCordova(requiredVersion) {
+    if (!requiredVersion) {
+        console.log(chalk.red('Cordova version is not specified!'));
+        process.exit(1);
+    }
+    const result = shell.exec('cordova --version', { silent: true });
+    const installVersion = requiredVersion.split(' ')[0];
+    if (result.code !== 0) {
+        console.log(chalk.green('Installing cordova...'));
+        const installResult = shell.exec('npm install -g cordova@' + installVersion, { silent: false });
+        if (installResult.code !== 0) {
+            console.log(chalk.red('Cordova installation failed. Please install manually: npm install -g cordova@' + installVersion));
+            process.exit(1);
+        }
+    } else {
+        let version = result.stdout.trim();
+        if (version !== requiredVersion) {
+            console.log(chalk.yellow(`Detected global Cordova version: ${version}\nRequired version: ${requiredVersion}\nPlease update Cordova: npm install -g cordova@${installVersion}`));
+            process.exit(1);
+        }
+    }
 }
 
 async function init() {
@@ -142,6 +166,8 @@ async function init() {
     }
     
     if (pkgs.indexOf('create') !== -1) {
+
+        checkGlobalCordova(CORDOVA_REQUIRED_VERSION);
 
         const readDir = fse.readdirSync(cwd);
 
