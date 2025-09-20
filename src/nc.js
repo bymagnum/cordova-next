@@ -791,33 +791,9 @@ async function init() {
 
             if (action === 'add') {
 
-                if (fse.existsSync(cwd + '/platforms/electron/platform_www/cdv-electron-main.js')) {
-
-                    const getFileCdvElectronMain = await fse.promises.readFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js');
-
-                    let dataCdvElectronMain = getFileCdvElectronMain.toString();
-
-                    if (dataCdvElectronMain.indexOf('ignore-certificate-errors') === -1) {
-
-                        dataCdvElectronMain = dataCdvElectronMain.replace(/require\('electron'\)(;)?/gmi, 'require(\'electron\');' + EOL + EOL + 'app.commandLine.appendSwitch(\'ignore-certificate-errors\');' + EOL + EOL);
-
-                        await fse.promises.writeFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js', dataCdvElectronMain);
-
-                    }
-
-                    const getFileCdvElectronMain2 = await fse.promises.readFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js');
-
-                    let dataCdvElectronMain2 = getFileCdvElectronMain2.toString();
-
-                    if (dataCdvElectronMain2.indexOf('supportFetchAPI') === -1) {
-
-                        dataCdvElectronMain2 = dataCdvElectronMain2.replace(/secure: true/gmi, 'secure: true, supportFetchAPI: true ');
-
-                        await fse.promises.writeFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js', dataCdvElectronMain2);
-
-                    }
-
-                }
+                fse.copySync(path.join(path.dirname(__dirname), 'platform/electron/cdv-electron-main.js'), path.join(cwd, 'platforms/electron/platform_www/cdv-electron-main.js'));
+                
+                console.log(chalk.green('cdv-electron-main.js has been copied to platforms/electron/platform_www'));
 
             }
 
