@@ -1,4 +1,4 @@
-const CORDOVA_REQUIRED_VERSION = '12.0.0 (cordova-lib@12.0.2)';
+﻿const CORDOVA_REQUIRED_VERSION = '12.0.0 (cordova-lib@12.0.2)';
 const { program } = require('commander');
 const fse = require('fs-extra');
 const proxy = require('http-proxy');
@@ -9,88 +9,12 @@ const { EOL } = require('os');
 const loading = require('loading-cli');
 const adb = require('adbkit');
 const readline = require('readline');
-
-async function contentToRemote(cwd, contentSrc) {
-    
-    const getFileConfig = await fse.promises.readFile(cwd + '/config.xml');
-
-    let dataConfig = getFileConfig.toString();
-
-    dataConfig = dataConfig.replace(/<content[\S\s]*?src="[^"]+"/gmi, '<content src="' + contentSrc + '"');
-
-    await fse.promises.writeFile(cwd + '/config.xml', dataConfig);
-
-}
-
-async function contentToLocal(cwd) {
-
-    const getFileConfig = await fse.promises.readFile(cwd + '/config.xml');
-
-    dataConfig = getFileConfig.toString();
-
-    dataConfig = dataConfig.replace(/<content[\S\s]*?src="[^"]+"/gmi, '<content src="https://localhost"');
-
-    await fse.promises.writeFile(cwd + '/config.xml', dataConfig);
-
-}
-
-function rl_input(rl, prompt) {
-    return new Promise(function (callbackFn, errorFn) {
-        rl.question(prompt, function (uinput) {
-            callbackFn(uinput);
-        }, function () {
-            errorFn();
-        });
-    });
-}
-
-const getAllFiles = function(dirPath, arrayOfFiles, level, slash = '') {
-    const files = fse.readdirSync(dirPath);
-    arrayOfFiles = arrayOfFiles || [];
-    level = level + 1 || 0;
-    slash = level > 0 ? slash + '/..': '';
-    files.forEach(function(file) {
-        if (fse.statSync(dirPath + '/' + file).isDirectory()) {
-            arrayOfFiles = getAllFiles(dirPath + '/' + file, arrayOfFiles, level, slash);
-        } else {
-            if (
-                path.extname(file) == '.html' || path.extname(file) == '.css'
-            ) {
-                // arrayOfFiles.push(path.join(dirPath, '/', file));
-                arrayOfFiles.push({
-                    path: dirPath,
-                    file,
-                    level,
-                    slash: '.' + slash
-                });
-            }
-        }
-    });
-    return arrayOfFiles;
-}
-
-function checkGlobalCordova(requiredVersion) {
-    if (!requiredVersion) {
-        console.log(chalk.red('Cordova version is not specified!'));
-        process.exit(1);
-    }
-    const result = shell.exec('cordova --version', { silent: true });
-    const installVersion = requiredVersion.split(' ')[0];
-    if (result.code !== 0) {
-        console.log(chalk.green('Installing cordova...'));
-        const installResult = shell.exec('npm install -g cordova@' + installVersion, { silent: false });
-        if (installResult.code !== 0) {
-            console.log(chalk.red('Cordova installation failed. Please install manually: npm install -g cordova@' + installVersion));
-            process.exit(1);
-        }
-    } else {
-        let version = result.stdout.trim();
-        if (version !== requiredVersion) {
-            console.log(chalk.yellow(`Detected global Cordova version: ${version}\nRequired version: ${requiredVersion}\nPlease update Cordova: npm install -g cordova@${installVersion}`));
-            process.exit(1);
-        }
-    }
-}
+const {
+    contentToRemote,
+    contentToLocal,
+    rlInput,
+    checkGlobalCordova
+} = require('./utils/project');
 
 async function init() {
     
@@ -499,7 +423,7 @@ async function init() {
                     output: process.stdout
                 });
 
-                const number = await rl_input(rl, text);
+                const number = await rlInput(rl, text);
 
                 rl.close();
 
