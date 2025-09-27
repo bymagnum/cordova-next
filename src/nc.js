@@ -307,13 +307,21 @@ async function init() {
 
                     const childEletron = shell.exec('npx cordova run electron --nobuild', { async: true, silent: true });
 
+                    let electronStartedLogged = false;
+
                     childEletron.stdout.on('data', async function (data) {
 
-                        await contentToLocal(cwd);
+                        if (!electronStartedLogged) {
 
-                        console.log(chalk.green('- Electron started'));
+                            await contentToLocal(cwd);
 
-                        data = data.trim();
+                            electronStartedLogged = true;
+
+                            console.log(chalk.green('- Electron started'));
+
+                        }
+                            
+                        data = data.toString().trim();
 
                         if (!data) return;
                         
@@ -334,7 +342,7 @@ async function init() {
                             return;
                         }
 
-                        console.log(chalk.yellow('Electron: ') + data);
+                        console.log(chalk.yellow('Electron: '), data);
 
                     });
         
