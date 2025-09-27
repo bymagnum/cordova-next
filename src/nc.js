@@ -318,7 +318,8 @@ async function init() {
                             electronStartedLogged = true;
 
                             console.log(chalk.green('- Electron started'));
-
+                            console.log(chalk.yellow('  ⮡ CSP warning OK: Next dev uses unsafe-eval for hot reload'));
+    
                         }
                             
                         data = data.toString().trim();
