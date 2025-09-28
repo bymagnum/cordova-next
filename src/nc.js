@@ -142,6 +142,12 @@ async function init() {
 
     } else if (pkgs.indexOf('dev') !== -1) {
 
+        if (!process.env.NODE_ENV) {
+
+            process.env.NODE_ENV = 'development';
+
+        }
+
         if (pkgs.indexOf('web') !== -1) {
 
             process.env.CORDOVA_NEXT_PLATFORM = 'web';
@@ -479,6 +485,12 @@ async function init() {
 
     } else if (pkgs.indexOf('run') !== -1) {
 
+        if (!process.env.NODE_ENV) {
+
+            process.env.NODE_ENV = 'production';
+            
+        }
+
         if (pkgs.indexOf('android') !== -1) {
 
             if (!fse.existsSync(cwd + '/platforms/android')) {
@@ -589,6 +601,12 @@ async function init() {
         }
 
     } else if (pkgs.indexOf('release') !== -1) {
+
+        if (!process.env.NODE_ENV) {
+
+            process.env.NODE_ENV = 'production';
+            
+        }
 
         if (pkgs.indexOf('android') !== -1) {
 
