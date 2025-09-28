@@ -24,7 +24,7 @@ const { cordova } = require('./package.json');
 // Module to control application life, browser window and tray.
 const { app, BrowserWindow, protocol, ipcMain, net } = require('electron');
 
-// Ignore certificate errors (useful for development with self-signed certificates)
+// cordova-next patch: Ignore certificate errors (useful for development with self-signed certificates)
 app.commandLine.appendSwitch('ignore-certificate-errors');
 
 // Electron settings from .json file.
