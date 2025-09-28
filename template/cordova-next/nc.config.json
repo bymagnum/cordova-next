@@ -1,7 +1,9 @@
 {
-  "port": {
-    "http": 9090,
-    "https": 9091
+  "dev": {
+    "port": {
+      "http": 9090,
+      "https": 9091
+    }
   },
   "electron": {
     "browserWindow": {

@@ -83,10 +83,9 @@ async function init() {
     
         ncConfig = require(path.join(cwd, 'nc.config.json'));
     
-        ncConfigPortHttp = ncConfig?.port?.http ?? 9090;
+        ncConfigPortHttp = ncConfig?.dev?.port?.http ?? 9090;
     
-        ncConfigPortHttps = ncConfig?.port?.https ?? 9091;
-    
+        ncConfigPortHttps = ncConfig?.dev?.port?.https ?? 9091;
     }
     
     if (pkgs.indexOf('create') !== -1) {
