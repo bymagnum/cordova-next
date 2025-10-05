@@ -69,6 +69,7 @@ function checkGlobalCordova(requiredVersion) {
     }
     const result = shell.exec('cordova --version', { silent: true });
     const installVersion = requiredVersion.split(' ')[0];
+    // Cordova is not installed
     if (result.code !== 0) {
         console.log(chalk.green('Installing cordova...'));
         const installResult = shell.exec('npm install -g cordova@' + installVersion, { silent: false });
@@ -76,9 +77,10 @@ function checkGlobalCordova(requiredVersion) {
             console.log(chalk.red('Cordova installation failed. Please install manually: npm install -g cordova@' + installVersion));
             process.exit(1);
         }
+    // If cordova is installed
     } else {
-        let version = result.stdout.trim();
-        if (version !== requiredVersion) {
+        const version = result.stdout.trim();
+        if (version.split(' ')[0] !== requiredVersion.split(' ')[0]) {
             console.log(chalk.yellow(`Detected global Cordova version: ${version}\nRequired version: ${requiredVersion}\nPlease update Cordova: npm install -g cordova@${installVersion}`));
             process.exit(1);
         }

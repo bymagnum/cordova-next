@@ -1,4 +1,4 @@
-﻿const CORDOVA_REQUIRED_VERSION = '12.0.0 (cordova-lib@12.0.2)';
+﻿const CORDOVA_REQUIRED_VERSION = '12.0.0';
 const { program } = require('commander');
 const fse = require('fs-extra');
 const proxy = require('http-proxy');
