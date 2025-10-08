@@ -33,8 +33,7 @@ if (process.env.NC_DEV_HTTPS_PORT == '') {
 }
 const DEFAULT_DEV_HTTPS_PORT = parseInt(process.env.NC_DEV_HTTPS_PORT, 10);
 const NODE_ENV = process.env.NODE_ENV;
-process.env.NC_DEV_SSL_KEY = process.env.NC_DEV_SSL_KEY ?? null;
-process.env.NC_DEV_SSL_CERT = process.env.NC_DEV_SSL_CERT ?? null;
+process.env.NC_PACKAGE_PATH = process.env.NC_PACKAGE_PATH ?? null;
 
 // Module to control application life, browser window and tray.
 const { app, BrowserWindow, protocol, ipcMain, net } = require('electron');
@@ -167,8 +166,8 @@ async function startHttpsProxy() {
             'Connection': 'Upgrade'
         },
         ssl: {
-            key: fs.readFileSync(process.env.NC_DEV_SSL_KEY, 'utf8'),
-            cert: fs.readFileSync(process.env.NC_DEV_SSL_CERT, 'utf8')
+            key: fs.readFileSync(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'server.key'), 'utf8'),
+            cert: fs.readFileSync(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'server.crt'), 'utf8')
         }
     }).on('error', function (e) {
         console.error('cordova-next: HTTPS proxy error', e);

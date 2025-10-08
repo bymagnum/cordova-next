@@ -91,9 +91,7 @@ async function init() {
 
         process.env.NC_DEV_HTTPS_PORT = ncConfigPortHttps;
 
-        process.env.NC_DEV_SSL_KEY = path.join(path.dirname(__dirname), 'resources', 'server.key');
-
-        process.env.NC_DEV_SSL_CERT = path.join(path.dirname(__dirname), 'resources', 'server.crt');
+        process.env.NC_PACKAGE_PATH = path.dirname(__dirname);
 
     }
     
