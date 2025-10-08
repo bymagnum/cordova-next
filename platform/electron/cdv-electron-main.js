@@ -21,10 +21,24 @@ const fs = require('fs');
 const path = require('path');
 const { cordova } = require('./package.json');
 
+const proxy = require('http-proxy');
+process.env.NC_DEV_HTTP_PORT = process.env.NC_DEV_HTTP_PORT ?? 9090;
+if (process.env.NC_DEV_HTTP_PORT == '') {
+    process.env.NC_DEV_HTTP_PORT = 9090;
+}
+const DEFAULT_DEV_HTTP_PORT = parseInt(process.env.NC_DEV_HTTP_PORT, 10);
+process.env.NC_DEV_HTTPS_PORT = process.env.NC_DEV_HTTPS_PORT ?? 9091;
+if (process.env.NC_DEV_HTTPS_PORT == '') {
+    process.env.NC_DEV_HTTPS_PORT = 9091;
+}
+const DEFAULT_DEV_HTTPS_PORT = parseInt(process.env.NC_DEV_HTTPS_PORT, 10);
+const NODE_ENV = process.env.NODE_ENV;
+process.env.NC_DEV_SSL_KEY = process.env.NC_DEV_SSL_KEY ?? null;
+process.env.NC_DEV_SSL_CERT = process.env.NC_DEV_SSL_CERT ?? null;
+
 // Module to control application life, browser window and tray.
 const { app, BrowserWindow, protocol, ipcMain, net } = require('electron');
 
-// cordova-next patch: Ignore certificate errors (useful for development with self-signed certificates)
 app.commandLine.appendSwitch('ignore-certificate-errors');
 
 // Electron settings from .json file.
@@ -92,7 +106,14 @@ function createWindow() {
     const loadUrl = cdvUrl.includes('://') ? cdvUrl : `${basePath}/${cdvUrl}`;
     const loadUrlOpts = Object.assign({}, cdvElectronSettings.browserWindowInstance.loadURL.options);
 
-    mainWindow.loadURL(loadUrl, loadUrlOpts);
+    let _loadUrl;
+    if (NODE_ENV === 'development') {
+        _loadUrl = 'https://localhost:' + DEFAULT_DEV_HTTPS_PORT;
+    } else {
+        _loadUrl = loadUrl;
+    }
+
+    mainWindow.loadURL(_loadUrl, loadUrlOpts);
 
     // Open the DevTools.
     if (cdvElectronSettings.browserWindow.webPreferences.devTools) {
@@ -133,11 +154,41 @@ function configureProtocol() {
     }
 }
 
+let _startHttpsProxy;
+async function startHttpsProxy() {
+    _startHttpsProxy = proxy.createServer({
+        xfwd: true,
+        ws: true,
+        target: {
+            host: 'localhost',
+            port: DEFAULT_DEV_HTTP_PORT
+        },
+        headers: {
+            'Connection': 'Upgrade'
+        },
+        ssl: {
+            key: fs.readFileSync(process.env.NC_DEV_SSL_KEY, 'utf8'),
+            cert: fs.readFileSync(process.env.NC_DEV_SSL_CERT, 'utf8')
+        }
+    }).on('error', function (e) {
+        console.error('cordova-next: HTTPS proxy error', e);
+    });
+    await new Promise((resolve) => {
+        _startHttpsProxy.listen(DEFAULT_DEV_HTTPS_PORT, () => {
+            console.log('cordova-next: HTTPS dev proxy → https://localhost:' + DEFAULT_DEV_HTTPS_PORT);
+            resolve();
+        });
+    });
+    return true;
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', () => {
-    if (!isFileProtocol) {
+app.on('ready', async () => {
+    if (NODE_ENV === 'development') {
+        await startHttpsProxy();
+    } else if (!isFileProtocol) {
         configureProtocol();
     }
     if (devTools && cdvElectronSettings.devToolsExtension) {
@@ -155,6 +206,12 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();
     }
+});
+
+app.on('before-quit', () => {
+    if (!_startHttpsProxy) return;
+    _startHttpsProxy.close();
+    _startHttpsProxy = null;
 });
 
 app.on('activate', () => {

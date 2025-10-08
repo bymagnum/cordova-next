@@ -86,6 +86,15 @@ async function init() {
         ncConfigPortHttp = ncConfig?.dev?.port?.http ?? 9090;
     
         ncConfigPortHttps = ncConfig?.dev?.port?.https ?? 9091;
+    
+        process.env.NC_DEV_HTTP_PORT = ncConfigPortHttp;
+
+        process.env.NC_DEV_HTTPS_PORT = ncConfigPortHttps;
+
+        process.env.NC_DEV_SSL_KEY = path.join(path.dirname(__dirname), 'resources', 'server.key');
+
+        process.env.NC_DEV_SSL_CERT = path.join(path.dirname(__dirname), 'resources', 'server.crt');
+
     }
     
     if (pkgs.indexOf('create') !== -1) {
@@ -225,7 +234,7 @@ async function init() {
             
             data = data.toString().toLowerCase();
 
-            if (data.indexOf(ncConfigPortHttp) !== -1) {
+            if (data.indexOf(ncConfigPortHttp) !== -1 && pkgs.indexOf('electron') === -1) {
 
                 const server = proxy.createServer({
                     xfwd: true,
@@ -308,8 +317,6 @@ async function init() {
                 
                     }
 
-                    await contentToRemote(cwd, 'https://localhost:' + ncConfigPortHttps);
-
                     const childEletron = shell.exec('npx cordova run electron --nobuild', { async: true, silent: true });
 
                     let electronStartedLogged = false;
@@ -317,8 +324,6 @@ async function init() {
                     childEletron.stdout.on('data', async function (data) {
 
                         if (!electronStartedLogged) {
-
-                            await contentToLocal(cwd);
 
                             electronStartedLogged = true;
 
