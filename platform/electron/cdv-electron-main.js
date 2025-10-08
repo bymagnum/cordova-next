@@ -174,7 +174,7 @@ async function startHttpsProxy() {
     });
     await new Promise((resolve) => {
         _startHttpsProxy.listen(DEFAULT_DEV_HTTPS_PORT, () => {
-            console.log('cordova-next: HTTPS dev proxy → https://localhost:' + DEFAULT_DEV_HTTPS_PORT);
+            console.log('cordova-next: HTTPS dev proxy -> https://localhost:' + DEFAULT_DEV_HTTPS_PORT);
             resolve();
         });
     });
