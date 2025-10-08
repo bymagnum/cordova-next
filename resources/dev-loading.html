@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Starting dev server...</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: system-ui, sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+        }
+        .card {
+            padding: 2rem 2.5rem;
+            border-radius: 16px;
+            background: rgba(15, 23, 42, 0.85);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+            text-align: center;
+        }
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 6px solid rgba(148, 163, 184, 0.2);
+            border-top-color: #38bdf8;
+            margin: 0 auto 1.5rem;
+            animation: spin 1s linear infinite;
+        }
+        h1 {
+            font-size: 1.4rem;
+            margin: 0 0 0.4rem;
+        }
+        p {
+            margin: 0;
+            opacity: 0.7;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="spinner"></div>
+        <h1>Starting dev server...</h1>
+        <p>HTTPS proxy is spinning up Next.js.</p>
+    </div>
+</body>
+</html>

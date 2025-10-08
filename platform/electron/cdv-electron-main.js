@@ -19,20 +19,25 @@
 
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
+const proxy = require('http-proxy');
+const { URL } = require('url');
 const { cordova } = require('./package.json');
 
-const proxy = require('http-proxy');
 process.env.NC_DEV_HTTP_PORT = process.env.NC_DEV_HTTP_PORT ?? 9090;
 if (process.env.NC_DEV_HTTP_PORT == '') {
     process.env.NC_DEV_HTTP_PORT = 9090;
 }
-const DEFAULT_DEV_HTTP_PORT = parseInt(process.env.NC_DEV_HTTP_PORT, 10);
+process.env.NC_DEV_HTTP_PORT = parseInt(process.env.NC_DEV_HTTP_PORT, 10);
+
 process.env.NC_DEV_HTTPS_PORT = process.env.NC_DEV_HTTPS_PORT ?? 9091;
 if (process.env.NC_DEV_HTTPS_PORT == '') {
     process.env.NC_DEV_HTTPS_PORT = 9091;
 }
-const DEFAULT_DEV_HTTPS_PORT = parseInt(process.env.NC_DEV_HTTPS_PORT, 10);
-const NODE_ENV = process.env.NODE_ENV;
+process.env.NC_DEV_HTTPS_PORT = parseInt(process.env.NC_DEV_HTTPS_PORT, 10);
+
+process.env.NODE_ENV = process.env.NODE_ENV ?? null;
+
 process.env.NC_PACKAGE_PATH = process.env.NC_PACKAGE_PATH ?? null;
 
 // Module to control application life, browser window and tray.
@@ -79,7 +84,7 @@ if (!isFileProtocol) {
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
-function createWindow() {
+async function createWindow() {
     // Create the browser window.
     let appIcon;
     if (fs.existsSync(path.join(__dirname, 'img', 'app.png'))) {
@@ -105,14 +110,14 @@ function createWindow() {
     const loadUrl = cdvUrl.includes('://') ? cdvUrl : `${basePath}/${cdvUrl}`;
     const loadUrlOpts = Object.assign({}, cdvElectronSettings.browserWindowInstance.loadURL.options);
 
-    let _loadUrl;
-    if (NODE_ENV === 'development') {
-        _loadUrl = 'https://localhost:' + DEFAULT_DEV_HTTPS_PORT;
+    if (process.env.NODE_ENV === 'development') {
+        await mainWindow.loadFile(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'dev-loading.html'));
+        await waitForDevServer('https://localhost:' + process.env.NC_DEV_HTTPS_PORT);
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        await mainWindow.loadURL('https://localhost:' + process.env.NC_DEV_HTTPS_PORT, loadUrlOpts);
     } else {
-        _loadUrl = loadUrl;
+        mainWindow.loadURL(loadUrl, loadUrlOpts);
     }
-
-    mainWindow.loadURL(_loadUrl, loadUrlOpts);
 
     // Open the DevTools.
     if (cdvElectronSettings.browserWindow.webPreferences.devTools) {
@@ -125,6 +130,43 @@ function createWindow() {
         // in an array if your app supports multi windows, this is the time
         // when you should delete the corresponding element.
         mainWindow = null;
+    });
+}
+
+function waitForDevServer(targetUrl, { timeout = 20000, interval = 500 } = {}) {
+    return new Promise((resolve, reject) => {
+        const deadline = Date.now() + timeout;
+        const parsed = new URL(targetUrl);
+        const attempt = () => {
+            const req = https.request({
+                hostname: parsed.hostname,
+                port: parsed.port,
+                path: '/',
+                method: 'HEAD',
+                rejectUnauthorized: false
+            }, (res) => {
+                res.destroy();
+                resolve();
+            });
+            req.on('error', () => {
+                if (Date.now() > deadline) {
+                    reject(new Error('Dev server did not respond in time'));
+                } else {
+                    setTimeout(attempt, interval);
+                }
+            });
+            req.setTimeout(2000, () => {
+                req.destroy();
+                if (Date.now() > deadline) {
+                    reject(new Error('Dev server timed out'));
+                } else {
+                    setTimeout(attempt, interval);
+                }
+            });
+            req.end();
+        };
+        attempt();
+
     });
 }
 
@@ -160,7 +202,7 @@ async function startHttpsProxy() {
         ws: true,
         target: {
             host: 'localhost',
-            port: DEFAULT_DEV_HTTP_PORT
+            port: process.env.NC_DEV_HTTP_PORT
         },
         headers: {
             'Connection': 'Upgrade'
@@ -173,8 +215,8 @@ async function startHttpsProxy() {
         console.error('cordova-next: HTTPS proxy error', e);
     });
     await new Promise((resolve) => {
-        _startHttpsProxy.listen(DEFAULT_DEV_HTTPS_PORT, () => {
-            console.log('cordova-next: HTTPS dev proxy -> https://localhost:' + DEFAULT_DEV_HTTPS_PORT);
+        _startHttpsProxy.listen(process.env.NC_DEV_HTTPS_PORT, () => {
+            console.log('cordova-next: HTTPS dev proxy -> https://localhost:' + process.env.NC_DEV_HTTPS_PORT);
             resolve();
         });
     });
@@ -185,7 +227,7 @@ async function startHttpsProxy() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
-    if (NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development') {
         await startHttpsProxy();
     } else if (!isFileProtocol) {
         configureProtocol();
