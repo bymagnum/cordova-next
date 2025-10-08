@@ -37,31 +37,6 @@ function rlInput(rl, prompt) {
     });
 }
 
-const getAllFiles = function(dirPath, arrayOfFiles, level, slash = '') {
-    const files = fse.readdirSync(dirPath);
-    arrayOfFiles = arrayOfFiles || [];
-    level = level + 1 || 0;
-    slash = level > 0 ? slash + '/..': '';
-    files.forEach(function(file) {
-        if (fse.statSync(dirPath + '/' + file).isDirectory()) {
-            arrayOfFiles = getAllFiles(dirPath + '/' + file, arrayOfFiles, level, slash);
-        } else {
-            if (
-                path.extname(file) == '.html' || path.extname(file) == '.css'
-            ) {
-                // arrayOfFiles.push(path.join(dirPath, '/', file));
-                arrayOfFiles.push({
-                    path: dirPath,
-                    file,
-                    level,
-                    slash: '.' + slash
-                });
-            }
-        }
-    });
-    return arrayOfFiles;
-}
-
 function checkGlobalCordova(requiredVersion) {
     if (!requiredVersion) {
         console.log(chalk.red('Cordova version is not specified!'));
