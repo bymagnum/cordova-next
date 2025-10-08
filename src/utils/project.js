@@ -5,25 +5,25 @@ const chalk = require('chalk');
 
 async function contentToRemote(cwd, contentSrc) {
     
-    const getFileConfig = await fse.promises.readFile(cwd + '/config.xml');
+    const getFileConfig = await fse.promises.readFile(path.join(cwd, 'config.xml'));
 
     let dataConfig = getFileConfig.toString();
 
     dataConfig = dataConfig.replace(/<content[\S\s]*?src="[^"]+"/gmi, '<content src="' + contentSrc + '"');
 
-    await fse.promises.writeFile(cwd + '/config.xml', dataConfig);
+    await fse.promises.writeFile(path.join(cwd, 'config.xml'), dataConfig);
 
 }
 
 async function contentToLocal(cwd) {
 
-    const getFileConfig = await fse.promises.readFile(cwd + '/config.xml');
+    const getFileConfig = await fse.promises.readFile(path.join(cwd, 'config.xml'));
 
     let dataConfig = getFileConfig.toString();
 
     dataConfig = dataConfig.replace(/<content[\S\s]*?src="[^"]+"/gmi, '<content src="https://localhost"');
 
-    await fse.promises.writeFile(cwd + '/config.xml', dataConfig);
+    await fse.promises.writeFile(path.join(cwd, 'config.xml'), dataConfig);
 
 }
 

@@ -82,12 +82,12 @@ let mainWindow;
 function createWindow() {
     // Create the browser window.
     let appIcon;
-    if (fs.existsSync(path.join(__dirname, 'img/app.png'))) {
-        appIcon = path.join(__dirname, 'img/app.png');
-    } else if (fs.existsSync(path.join(__dirname, 'img/icon.png'))) {
-        appIcon = path.join(__dirname, 'img/icon.png');
+    if (fs.existsSync(path.join(__dirname, 'img', 'app.png'))) {
+        appIcon = path.join(__dirname, 'img', 'app.png');
+    } else if (fs.existsSync(path.join(__dirname, 'img', 'icon.png'))) {
+        appIcon = path.join(__dirname, 'img', 'icon.png');
     } else {
-        appIcon = path.join(__dirname, 'img/logo.png');
+        appIcon = path.join(__dirname, 'img', 'logo.png');
     }
 
     const browserWindowOpts = Object.assign({}, cdvElectronSettings.browserWindow, { icon: appIcon });

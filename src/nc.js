@@ -109,7 +109,7 @@ async function init() {
 
         }
 
-        const ROOT_DIR = path.join(path.dirname(__dirname), 'template/cordova-next/');
+        const ROOT_DIR = path.join(path.dirname(__dirname), 'template', 'cordova-next');
 
         console.log(chalk.green('Copying the template'));
 
@@ -160,7 +160,7 @@ async function init() {
 
         } else if (pkgs.indexOf('android') !== -1) {
 
-            if (!fse.existsSync(cwd + '/platforms/android')) {
+            if (!fse.existsSync(path.join(cwd, 'platforms', 'android'))) {
 
                 console.log(chalk.red('No platforms added to this project. Please use `nc platform add <platform>`'));
 
@@ -211,7 +211,7 @@ async function init() {
 
         } else if (pkgs.indexOf('electron') !== -1) {
 
-            if (!fse.existsSync(cwd + '/platforms/electron')) {
+            if (!fse.existsSync(path.join(cwd, 'platforms', 'electron'))) {
 
                 console.log(chalk.red('No platforms added to this project. Please use `nc platform add <platform>`'));
 
@@ -245,8 +245,8 @@ async function init() {
                         'Connection': 'Upgrade'
                     },
                     ssl: {
-                        key: fse.readFileSync(path.join(path.dirname(__dirname), 'resources/server.key'), 'utf8'),
-                        cert: fse.readFileSync(path.join(path.dirname(__dirname), 'resources/server.crt'), 'utf8')
+                        key: fse.readFileSync(path.join(path.dirname(__dirname), 'resources', 'server.key'), 'utf8'),
+                        cert: fse.readFileSync(path.join(path.dirname(__dirname), 'resources', 'server.crt'), 'utf8')
                     }
                 }).on('error', function (e) {
         
@@ -264,37 +264,37 @@ async function init() {
 
                 if (pkgs.indexOf('android') !== -1) {
 
-                    if (fse.existsSync(cwd + '/platforms/android/platform_www') && fse.existsSync(cwd + '/www/static/chunks')) {
+                    if (fse.existsSync(path.join(cwd, 'platforms', 'android', 'platform_www')) && fse.existsSync(path.join(cwd, 'www', 'static', 'chunks'))) {
 
-                        fse.copySync(cwd + '/platforms/android/platform_www', 'www/static/chunks');
+                        fse.copySync(path.join(cwd, 'platforms', 'android', 'platform_www'), path.join('www', 'static', 'chunks'));
 
                     }
 
                     // When the application is initially generated without plugins installed, the file is not generated, which causes an error to be displayed in the console
-                    if (!fse.existsSync(cwd + '/platforms/android/platform_www/cordova_plugins.js') && fse.existsSync(cwd + '/www/static/chunks') && !fse.existsSync(cwd + '/www/static/chunks/cordova_plugins.js')) {
+                    if (!fse.existsSync(path.join(cwd, 'platforms', 'android', 'platform_www', 'cordova_plugins.js')) && fse.existsSync(path.join(cwd, 'www', 'static', 'chunks')) && !fse.existsSync(path.join(cwd, 'www', 'static', 'chunks', 'cordova_plugins.js'))) {
 
-                        fse.ensureFile(cwd + '/www/static/chunks/cordova_plugins.js');
+                        fse.ensureFile(path.join(cwd, 'www', 'static', 'chunks', 'cordova_plugins.js'));
 
                     }
 
                 } else if (pkgs.indexOf('electron') !== -1) {
 
-                    if (fse.existsSync(cwd + '/platforms/electron/platform_www') && fse.existsSync(cwd + '/www/static/chunks')) {
+                    if (fse.existsSync(path.join(cwd, 'platforms', 'electron', 'platform_www')) && fse.existsSync(path.join(cwd, 'www', 'static', 'chunks'))) {
 
-                        fse.copySync(cwd + '/platforms/electron/platform_www', 'www/static/chunks');
+                        fse.copySync(path.join(cwd, 'platforms', 'electron', 'platform_www'), path.join('www', 'static', 'chunks'));
 
                     }
 
                     // When the application is initially generated without plugins installed, the file is not generated, which causes an error to be displayed in the console
-                    if (!fse.existsSync(cwd + '/platforms/electron/platform_www/cordova_plugins.js') && fse.existsSync(cwd + '/www/static/chunks') && !fse.existsSync(cwd + '/www/static/chunks/cordova_plugins.js')) {
+                    if (!fse.existsSync(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cordova_plugins.js')) && fse.existsSync(path.join(cwd, 'www', 'static', 'chunks')) && !fse.existsSync(path.join(cwd, 'www', 'static', 'chunks', 'cordova_plugins.js'))) {
 
-                        fse.ensureFile(cwd + '/www/static/chunks/cordova_plugins.js');
+                        fse.ensureFile(path.join(cwd, 'www', 'static', 'chunks', 'cordova_plugins.js'));
 
                     }
 
                     const browserWindow = ncConfig?.electron?.browserWindow || {};
 
-                    if (fse.existsSync(path.join(cwd, '/platforms/electron/platform_www/cdv-electron-settings.json'))) {
+                    if (fse.existsSync(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-settings.json'))) {
                         
                         const defaultConfig = {
                             browserWindow: {
@@ -311,7 +311,7 @@ async function init() {
                             browserWindow: Object.assign({}, defaultConfig.browserWindow, browserWindow)
                         };
         
-                        await fse.promises.writeFile(cwd + '/platforms/electron/platform_www/cdv-electron-settings.json', JSON.stringify(newBrowserWindow, null, 4));
+                        await fse.promises.writeFile(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-settings.json'), JSON.stringify(newBrowserWindow, null, 4));
                 
                     }
 
@@ -365,14 +365,14 @@ async function init() {
         
         if (pkgs.indexOf('android') !== -1) {
 
-            if (!fse.existsSync(cwd + '/platforms/android')) {
+            if (!fse.existsSync(path.join(cwd, 'platforms', 'android'))) {
 
                 console.log(chalk.red('No platforms added to this project. Please use `nc platform add <platform>`'));
 
                 return;
             }
 
-            if (!fse.existsSync(cwd + '/config.xml')) {
+            if (!fse.existsSync(path.join(cwd, 'config.xml'))) {
 
                 console.log(chalk.red('config.xml does not exist'));
 
@@ -495,14 +495,14 @@ async function init() {
 
         if (pkgs.indexOf('android') !== -1) {
 
-            if (!fse.existsSync(cwd + '/platforms/android')) {
+            if (!fse.existsSync(path.join(cwd, 'platforms', 'android'))) {
 
                 console.log(chalk.red('No platforms added to this project. Please use `nc platform add <platform>`.'));
 
                 return;
             }
 
-            if (!fse.existsSync(cwd + '/config.xml')) {
+            if (!fse.existsSync(path.join(cwd, 'config.xml'))) {
 
                 console.log(chalk.red('config.xml does not exist'));
 
@@ -517,14 +517,14 @@ async function init() {
         
         } else if (pkgs.indexOf('electron') !== -1) {
         
-            if (!fse.existsSync(cwd + '/platforms/electron')) {
+            if (!fse.existsSync(path.join(cwd, 'platforms', 'electron'))) {
 
                 console.log(chalk.red('No platforms added to this project. Please use `nc platform add <platform>`.'));
 
                 return;
             }
  
-            if (!fse.existsSync(cwd + '/config.xml')) {
+            if (!fse.existsSync(path.join(cwd, 'config.xml'))) {
 
                 console.log(chalk.red('config.xml does not exist'));
 
@@ -537,7 +537,7 @@ async function init() {
 
             shell.exec('npx next build');
 
-            const getFileCdvElectronMain = await fse.promises.readFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js');
+            const getFileCdvElectronMain = await fse.promises.readFile(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-main.js'));
 
             let dataCdvElectronMain = getFileCdvElectronMain.toString();
 
@@ -545,20 +545,20 @@ async function init() {
 
                 dataCdvElectronMain = dataCdvElectronMain.replace(/const\s+scheme\s+=\s+cdvElectronSettings\.scheme(;)?/gmi, 'const scheme = \'app\';');
 
-                await fse.promises.writeFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js', dataCdvElectronMain);
+                await fse.promises.writeFile(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-main.js'), dataCdvElectronMain);
 
             }
 
             // When the application is initially generated without plugins installed, the file is not generated, which causes an error to be displayed in the console
-            if (!fse.existsSync(cwd + '/platforms/electron/platform_www/cordova_plugins.js')) {
+            if (!fse.existsSync(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cordova_plugins.js'))) {
 
-                await fse.ensureFile(cwd + '/platforms/electron/platform_www/cordova_plugins.js');
+                await fse.ensureFile(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cordova_plugins.js'));
 
             }
 
             const browserWindow = ncConfig?.electron?.browserWindow || {};
 
-            if (fse.existsSync(path.join(cwd, '/platforms/electron/platform_www/cdv-electron-settings.json'))) {
+            if (fse.existsSync(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-settings.json'))) {
                 
                 const defaultConfig = {
                     browserWindow: {
@@ -575,13 +575,13 @@ async function init() {
                     browserWindow: Object.assign({}, defaultConfig.browserWindow, browserWindow)
                 };
 
-                await fse.promises.writeFile(cwd + '/platforms/electron/platform_www/cdv-electron-settings.json', JSON.stringify(newBrowserWindow, null, 4));
+                await fse.promises.writeFile(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-settings.json'), JSON.stringify(newBrowserWindow, null, 4));
         
             }
 
             shell.exec('npx cordova build electron --debug');
 
-            const getFileCdvElectronMain2 = await fse.promises.readFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js');
+            const getFileCdvElectronMain2 = await fse.promises.readFile(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-main.js'));
 
             let dataCdvElectronMain2 = getFileCdvElectronMain2.toString();
 
@@ -589,7 +589,7 @@ async function init() {
 
                 dataCdvElectronMain2 = dataCdvElectronMain2.replace(/const\s+scheme\s+=\s+\'app\'(;)?/gmi, 'const scheme = cdvElectronSettings.scheme;');
 
-                await fse.promises.writeFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js', dataCdvElectronMain2);
+                await fse.promises.writeFile(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-main.js'), dataCdvElectronMain2);
 
             }
 
@@ -614,14 +614,14 @@ async function init() {
 
         } else if (pkgs.indexOf('electron') !== -1) {
         
-            if (!fse.existsSync(cwd + '/platforms/electron')) {
+            if (!fse.existsSync(path.join(cwd, 'platforms', 'electron'))) {
 
                 console.log(chalk.red('No platforms added to this project. Please use `nc platform add <platform>`.'));
 
                 return;
             }
  
-            if (!fse.existsSync(cwd + '/config.xml')) {
+            if (!fse.existsSync(path.join(cwd, 'config.xml'))) {
 
                 console.log(chalk.red('config.xml does not exist'));
 
@@ -634,7 +634,7 @@ async function init() {
 
             shell.exec('npx next build');
 
-            const getFileCdvElectronMain = await fse.promises.readFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js');
+            const getFileCdvElectronMain = await fse.promises.readFile(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-main.js'));
 
             let dataCdvElectronMain = getFileCdvElectronMain.toString();
 
@@ -642,20 +642,20 @@ async function init() {
 
                 dataCdvElectronMain = dataCdvElectronMain.replace(/const\s+scheme\s+=\s+cdvElectronSettings\.scheme(;)?/gmi, 'const scheme = \'app\';');
 
-                await fse.promises.writeFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js', dataCdvElectronMain);
+                await fse.promises.writeFile(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-main.js'), dataCdvElectronMain);
 
             }
 
             // When the application is initially generated without plugins installed, the file is not generated, which causes an error to be displayed in the console
-            if (!fse.existsSync(cwd + '/platforms/electron/platform_www/cordova_plugins.js')) {
+            if (!fse.existsSync(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cordova_plugins.js'))) {
 
-                await fse.ensureFile(cwd + '/platforms/electron/platform_www/cordova_plugins.js');
+                await fse.ensureFile(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cordova_plugins.js'));
 
             }
 
             const browserWindow = ncConfig?.electron?.browserWindow || {};
 
-            if (fse.existsSync(path.join(cwd, '/platforms/electron/platform_www/cdv-electron-settings.json'))) {
+            if (fse.existsSync(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-settings.json'))) {
                 
                 const defaultConfig = {
                     browserWindow: {
@@ -673,13 +673,13 @@ async function init() {
                     browserWindow: Object.assign({}, defaultConfig.browserWindow, browserWindow)
                 };
 
-                await fse.promises.writeFile(cwd + '/platforms/electron/platform_www/cdv-electron-settings.json', JSON.stringify(newBrowserWindow, null, 4));
+                await fse.promises.writeFile(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-settings.json'), JSON.stringify(newBrowserWindow, null, 4));
         
             }
 
             shell.exec('npx cordova build electron --release');
 
-            const getFileCdvElectronMain2 = await fse.promises.readFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js');
+            const getFileCdvElectronMain2 = await fse.promises.readFile(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-main.js'));
 
             let dataCdvElectronMain2 = getFileCdvElectronMain2.toString();
 
@@ -687,7 +687,7 @@ async function init() {
 
                 dataCdvElectronMain2 = dataCdvElectronMain2.replace(/const\s+scheme\s+=\s+\'app\'(;)?/gmi, 'const scheme = cdvElectronSettings.scheme;');
 
-                await fse.promises.writeFile(cwd + '/platforms/electron/platform_www/cdv-electron-main.js', dataCdvElectronMain2);
+                await fse.promises.writeFile(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-main.js'), dataCdvElectronMain2);
 
             }
 
@@ -720,9 +720,9 @@ async function init() {
 
             if (action === 'add') {
 
-                if (fse.existsSync(cwd + '/platforms/android/app/build.gradle')) {
+                if (fse.existsSync(path.join(cwd, 'platforms', 'android', 'app', 'build.gradle'))) {
 
-                    const getFileBuildGradle = await fse.promises.readFile(cwd + '/platforms/android/app/build.gradle');
+                    const getFileBuildGradle = await fse.promises.readFile(path.join(cwd, 'platforms', 'android', 'app', 'build.gradle'));
 
                     let dataBuildGradle = getFileBuildGradle.toString();
 
@@ -730,7 +730,7 @@ async function init() {
 
                         dataBuildGradle = dataBuildGradle.replace(/^(.+)namespace\s+cordovaConfig\.PACKAGE_NAMESPACE/gmi, '$1namespace cordovaConfig.PACKAGE_NAMESPACE' + EOL + EOL + '$1aaptOptions {' + EOL + '$1$1ignoreAssetsPattern \'!.svn:!.git:!.ds_store:!*.scc:.*:build\' ' + EOL + '$1}');
 
-                        await fse.promises.writeFile(cwd + '/platforms/android/app/build.gradle', dataBuildGradle);
+                        await fse.promises.writeFile(path.join(cwd, 'platforms', 'android', 'app', 'build.gradle'), dataBuildGradle);
 
                     }
 
@@ -744,9 +744,9 @@ async function init() {
 
             if (action === 'add') {
 
-                fse.copySync(path.join(path.dirname(__dirname), 'platform/electron/cdv-electron-main.js'), path.join(cwd, 'platforms/electron/platform_www/cdv-electron-main.js'));
+                fse.copySync(path.join(path.dirname(__dirname), 'platform', 'electron', 'cdv-electron-main.js'), path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-main.js'));
                 
-                console.log(chalk.green('cdv-electron-main.js has been copied to platforms/electron/platform_www'));
+                console.log(chalk.green('cdv-electron-main.js has been copied to ', path.join(cwd, 'platforms', 'electron', 'platform_www')));
 
             }
 
