@@ -62,9 +62,45 @@ function checkGlobalCordova(requiredVersion) {
     }
 }
 
+async function validateNextConfig(cwd, { requireStandalone = false, requireDistDir = false } = {}) {
+    const configPath = path.join(cwd, 'next.config.js');
+
+    if (!fse.existsSync(configPath)) {
+        console.log(chalk.red('next.config.js is missing from the project root'));
+        process.exit(1);
+    }
+
+    // ensure we read the current contents if the file changes between runs
+    delete require.cache[require.resolve(configPath)];
+
+    let rawConfig;
+    try {
+        const exportedConfig = require(configPath);
+        rawConfig = typeof exportedConfig === 'function' ? exportedConfig({}, { defaultConfig: {} }): exportedConfig;
+    } catch (err) {
+        console.log(chalk.red('Unable to load next.config.js: ' + err.message));
+        process.exit(1);
+    }
+
+    const nextConfig = await Promise.resolve(rawConfig);
+
+    if (requireStandalone && nextConfig.output !== 'standalone') {
+        console.log(chalk.red('next.config.js expected `output: "standalone"`'));
+        process.exit(1);
+    }
+
+    if (requireDistDir && nextConfig.distDir !== 'www') {
+        console.log(chalk.red('next.config.js expected `distDir: "www"`'));
+        process.exit(1);
+    }
+
+    return nextConfig;
+}
+
 module.exports = {
     contentToRemote,
     contentToLocal,
     rlInput,
-    checkGlobalCordova
+    checkGlobalCordova,
+    validateNextConfig
 };

@@ -13,7 +13,8 @@ const {
     contentToRemote,
     contentToLocal,
     rlInput,
-    checkGlobalCordova
+    checkGlobalCordova,
+    validateNextConfig
 } = require('./utils/project');
 
 async function init() {
@@ -217,6 +218,8 @@ async function init() {
 
                 return;
             }
+
+            await validateNextConfig(cwd, { requireStandalone: true, requireDistDir: true });
 
         } else {
 
