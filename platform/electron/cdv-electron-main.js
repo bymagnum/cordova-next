@@ -112,7 +112,7 @@ async function createWindow() {
 
     if (process.env.NODE_ENV === 'development') {
         await mainWindow.loadFile(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'dev-loading.html'));
-        await waitForDevServer('https://localhost:' + process.env.NC_DEV_HTTPS_PORT);
+        await waitForServer('https://localhost:' + process.env.NC_DEV_HTTPS_PORT);
         await new Promise((resolve) => setTimeout(resolve, 3000));
         await mainWindow.loadURL('https://localhost:' + process.env.NC_DEV_HTTPS_PORT, loadUrlOpts);
     } else {
@@ -133,7 +133,7 @@ async function createWindow() {
     });
 }
 
-function waitForDevServer(targetUrl, { timeout = 20000, interval = 500 } = {}) {
+function waitForServer(targetUrl, { timeout = 20000, interval = 500 } = {}) {
     return new Promise((resolve, reject) => {
         const deadline = Date.now() + timeout;
         const parsed = new URL(targetUrl);
