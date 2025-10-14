@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 
 module.exports = {
-    output: 'export',
+    output: 'standalone',
     distDir: 'www',
     images: {
         unoptimized: true

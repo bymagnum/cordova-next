@@ -21,7 +21,16 @@ async function init() {
     
     const cwd = process.cwd();
     
-    packageRoot = require('./../package.json');
+    const packageRoot = require(path.join(__dirname, '..', 'package.json'));
+
+    if (!fse.existsSync(path.join(cwd, 'package.json'))) {
+
+        console.log(chalk.red('package.json does not exist in the project'));
+
+        return;
+    }
+
+    const packageCwd = require(path.join(cwd, 'package.json'));
 
     program.command('create').description('Creates an application of the current directory, ready to work');
 
@@ -110,11 +119,9 @@ async function init() {
 
         }
 
-        const ROOT_DIR = path.join(path.dirname(__dirname), 'template', 'cordova-next');
-
         console.log(chalk.green('Copying the template'));
 
-        fse.copySync(ROOT_DIR, '.');
+        fse.copySync(path.join(path.dirname(__dirname), 'template', 'cordova-next'), '.');
     
         const load = loading({
             'text': chalk.green('Installing dependencies...'),
@@ -526,77 +533,112 @@ async function init() {
 
                 return;
             }
- 
-            if (!fse.existsSync(path.join(cwd, 'config.xml'))) {
 
-                console.log(chalk.red('config.xml does not exist'));
+            await validateNextConfig(cwd, { requireStandalone: true, requireDistDir: true });
 
+            if (packageCwd.build?.asar !== false) {
+                console.log(chalk.red('package.json expected `build.asar` to be set to false'));
+                return;
+            }
+            let extraFiles = packageCwd.build?.extraFiles ?? [];
+            if (!Array.isArray(extraFiles)) {
+                extraFiles = [extraFiles];
+            }
+            const hasStandaloneMapping = extraFiles.some(function (item) {
+                if (!item) return false;
+                const from = item?.from ?? '';
+                const to = item?.to ?? '';
+                const filter = item?.filter ?? null;
+                if (from !== 'platforms/electron/www/standalone/node_modules') return false;
+                if (to !== 'resources/app/standalone/node_modules') return false;
+                if (Array.isArray(filter)) {
+                    return filter.indexOf('**/*') !== -1;
+                }
+                if (typeof filter === 'string') {
+                    return filter === '**/*';
+                }
+                return false;
+            });
+            if (!hasStandaloneMapping) {
+                console.log(chalk.red('package.json expected build.extraFiles mapping from "platforms/electron/www/standalone/node_modules" to "resources/app/standalone/node_modules" with filter "**/*"'));
                 return;
             }
 
-            const loadURL = ncConfig?.electron?.browserWindowInstance?.loadURL?.url ?? 'index.html';
-
-            await contentToRemote(cwd, loadURL);
-
             shell.exec('npx next build');
 
-            const getFileCdvElectronMain = await fse.promises.readFile(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-main.js'));
+            if (!fse.existsSync(path.join(cwd, 'public'))) {
 
-            let dataCdvElectronMain = getFileCdvElectronMain.toString();
+                console.log(chalk.red('Required Next build artifact is missing: /public'));
 
-            if (dataCdvElectronMain.indexOf('cdvElectronSettings.scheme') !== -1) {
-
-                dataCdvElectronMain = dataCdvElectronMain.replace(/const\s+scheme\s+=\s+cdvElectronSettings\.scheme(;)?/gmi, 'const scheme = \'app\';');
-
-                await fse.promises.writeFile(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-main.js'), dataCdvElectronMain);
-
+                return;
             }
+ 
+            if (!fse.existsSync(path.join(cwd, 'www', 'static'))) {
 
+                console.log(chalk.red('Required Next build artifact is missing: /www/static'));
+
+                return;
+            }
+ 
+            fse.copySync(path.join(cwd, 'public'), path.join(cwd, 'www', 'standalone', 'public'));
+            fse.copySync(path.join(cwd, 'www', 'static'), path.join(cwd, 'www', 'standalone', 'www', 'static'));
+            
             // When the application is initially generated without plugins installed, the file is not generated, which causes an error to be displayed in the console
             if (!fse.existsSync(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cordova_plugins.js'))) {
-
                 await fse.ensureFile(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cordova_plugins.js'));
+            }
 
+            if (fse.existsSync(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cordova.js'))) {
+                await fse.copy(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cordova.js'), path.join(cwd, 'www', 'standalone', 'public', 'cordova.js'));
+            }
+
+            if (fse.existsSync(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cordova_plugins.js'))) {
+                await fse.copy(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cordova_plugins.js'), path.join(cwd, 'www', 'standalone', 'public', 'cordova_plugins.js'));
             }
 
             const browserWindow = ncConfig?.electron?.browserWindow || {};
-
-            if (fse.existsSync(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-settings.json'))) {
-                
-                const defaultConfig = {
+            if (Object.keys(browserWindow).length) {
+                const settingsTemplatePath = path.join(path.dirname(__dirname), 'platform', 'electron', 'cdv-electron-settings.json');
+                const projectSettingsPath = path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-settings.json');
+                const templateSettings = await fse.readJSON(settingsTemplatePath);
+                const projectSettings = fse.existsSync(projectSettingsPath) ? await fse.readJSON(projectSettingsPath) : {};
+                const mergedSettings = {
+                    ...templateSettings, ...projectSettings,
                     browserWindow: {
-                        width: 800,
-                        height: 600,
-                        webPreferences: {
-                            devTools: true,
-                            nodeIntegration: false
-                        }
+                        ...(templateSettings.browserWindow || {}),
+                        ...(projectSettings.browserWindow || {}),
+                        ...browserWindow
+                    }
+                };
+                await fse.writeFile(projectSettingsPath, JSON.stringify(mergedSettings, null, 4));
+            }
+
+            const depsElectron = packageRoot?.platformDependencies?.electron || {};
+            if (Object.keys(depsElectron).length) {
+                const packageElectron = path.join(cwd, 'platforms', 'electron', 'www', 'package.json');
+                const electronPkg = JSON.parse(await fse.promises.readFile(packageElectron, 'utf8'));
+                electronPkg.dependencies = electronPkg.dependencies || {};
+                let needInstall = false;
+                for (const [name, version] of Object.entries(depsElectron)) {
+                    if (!electronPkg.dependencies[name]) {
+                        electronPkg.dependencies[name] = version;
+                        needInstall = true;
                     }
                 }
+                 if (needInstall) {
+                    await fse.promises.writeFile(packageElectron, JSON.stringify(electronPkg, null, 2));
+                }
+            }
 
-                const newBrowserWindow = {
-                    browserWindow: Object.assign({}, defaultConfig.browserWindow, browserWindow)
-                };
-
-                await fse.promises.writeFile(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-settings.json'), JSON.stringify(newBrowserWindow, null, 4));
-        
+            // copy cert
+            if (fse.existsSync(path.join(path.dirname(__dirname), 'resources', 'server.crt'))) {
+                await fse.copy(path.join(path.dirname(__dirname), 'resources', 'server.crt'), path.join(cwd, 'www', 'resources', 'server.crt'));
+            }
+            if (fse.existsSync(path.join(path.dirname(__dirname), 'resources', 'server.key'))) {
+                await fse.copy(path.join(path.dirname(__dirname), 'resources', 'server.key'), path.join(cwd, 'www', 'resources', 'server.key'));
             }
 
             shell.exec('npx cordova build electron --debug');
-
-            const getFileCdvElectronMain2 = await fse.promises.readFile(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-main.js'));
-
-            let dataCdvElectronMain2 = getFileCdvElectronMain2.toString();
-
-            if (dataCdvElectronMain2.indexOf('\'app\'') !== -1) {
-
-                dataCdvElectronMain2 = dataCdvElectronMain2.replace(/const\s+scheme\s+=\s+\'app\'(;)?/gmi, 'const scheme = cdvElectronSettings.scheme;');
-
-                await fse.promises.writeFile(path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-main.js'), dataCdvElectronMain2);
-
-            }
-
-            await contentToLocal(cwd);
 
         } else {
 

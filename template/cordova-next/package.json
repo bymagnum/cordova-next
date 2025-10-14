@@ -13,5 +13,13 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.3",
     "@eslint/eslintrc": "^3"
+  },
+  "build": {
+    "asar": false,
+    "extraFiles": [{
+        "from": "platforms/electron/www/standalone/node_modules",
+        "to": "resources/app/standalone/node_modules",
+        "filter": ["**/*"]
+    }]
   }
 }

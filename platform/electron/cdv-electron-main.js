@@ -20,7 +20,10 @@
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
+const http = require('http');
 const proxy = require('http-proxy');
+const portfinder = require('portfinder');
+const { fork } = require('child_process');
 const { URL } = require('url');
 const { cordova } = require('./package.json');
 
@@ -36,9 +39,12 @@ if (process.env.NC_DEV_HTTPS_PORT == '') {
 }
 process.env.NC_DEV_HTTPS_PORT = parseInt(process.env.NC_DEV_HTTPS_PORT, 10);
 
-process.env.NODE_ENV = process.env.NODE_ENV ?? null;
+process.env.NODE_ENV = process.env.NODE_ENV ?? '';
 
-process.env.NC_PACKAGE_PATH = process.env.NC_PACKAGE_PATH ?? null;
+process.env.NC_PACKAGE_PATH = process.env.NC_PACKAGE_PATH ?? '';
+if (process.env.NC_PACKAGE_PATH == '') {
+    process.env.NC_PACKAGE_PATH = __dirname;
+}
 
 // Module to control application life, browser window and tray.
 const { app, BrowserWindow, protocol, ipcMain, net } = require('electron');
@@ -83,6 +89,7 @@ if (!isFileProtocol) {
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+let nextProcess;
 
 async function createWindow() {
     // Create the browser window.
@@ -116,7 +123,20 @@ async function createWindow() {
         await new Promise((resolve) => setTimeout(resolve, 3000));
         await mainWindow.loadURL('https://localhost:' + process.env.NC_DEV_HTTPS_PORT, loadUrlOpts);
     } else {
-        mainWindow.loadURL(loadUrl, loadUrlOpts);
+        const nextPort = await portfinder.getPortPromise({ port: 4100 });
+        const serverPath = path.join(__dirname, 'standalone', 'server.js');
+        nextProcess = fork(serverPath, [], {
+            env: {
+                PORT: nextPort.toString(),
+                HOSTNAME: 'localhost'
+            },
+            stdio: ['pipe', 'pipe', 'pipe', 'ipc']
+        });
+        await waitForServer('http://localhost:' + nextPort);
+        const httpsPort = await portfinder.getPortPromise({ port: 4101 });
+        await startHttpsProxy(nextPort, httpsPort);
+        await waitForServer('https://localhost:' + httpsPort);
+        await mainWindow.loadURL('https://localhost:' + httpsPort, loadUrlOpts);
     }
 
     // Open the DevTools.
@@ -137,8 +157,9 @@ function waitForServer(targetUrl, { timeout = 20000, interval = 500 } = {}) {
     return new Promise((resolve, reject) => {
         const deadline = Date.now() + timeout;
         const parsed = new URL(targetUrl);
+        const client = parsed.protocol === 'https:' ? https : http;
         const attempt = () => {
-            const req = https.request({
+            const req = client.request({
                 hostname: parsed.hostname,
                 port: parsed.port,
                 path: '/',
@@ -196,13 +217,13 @@ function configureProtocol() {
 }
 
 let _startHttpsProxy;
-async function startHttpsProxy() {
+async function startHttpsProxy(httpPort, httpsPort) {
     _startHttpsProxy = proxy.createServer({
         xfwd: true,
         ws: true,
         target: {
             host: 'localhost',
-            port: process.env.NC_DEV_HTTP_PORT
+            port: httpPort
         },
         headers: {
             'Connection': 'Upgrade'
@@ -215,8 +236,10 @@ async function startHttpsProxy() {
         console.error('cordova-next: HTTPS proxy error', e);
     });
     await new Promise((resolve) => {
-        _startHttpsProxy.listen(process.env.NC_DEV_HTTPS_PORT, () => {
-            console.log('cordova-next: HTTPS dev proxy -> https://localhost:' + process.env.NC_DEV_HTTPS_PORT);
+        _startHttpsProxy.listen(httpsPort, () => {
+            if (process.env.NODE_ENV === 'development') {
+                console.log('cordova-next: HTTPS dev proxy -> https://localhost:', httpsPort);
+            }
             resolve();
         });
     });
@@ -228,7 +251,7 @@ async function startHttpsProxy() {
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
     if (process.env.NODE_ENV === 'development') {
-        await startHttpsProxy();
+        await startHttpsProxy(process.env.NC_DEV_HTTP_PORT, process.env.NC_DEV_HTTPS_PORT);
     } else if (!isFileProtocol) {
         configureProtocol();
     }
@@ -247,9 +270,17 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();
     }
+    if (nextProcess) {
+        nextProcess.kill();
+        nextProcess = null;
+    }
 });
 
 app.on('before-quit', () => {
+    if (nextProcess) {
+        nextProcess.kill();
+        nextProcess = null;
+    }
     if (!_startHttpsProxy) return;
     _startHttpsProxy.close();
     _startHttpsProxy = null;
