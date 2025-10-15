@@ -123,6 +123,7 @@ async function createWindow() {
         await new Promise((resolve) => setTimeout(resolve, 3000));
         await mainWindow.loadURL('https://localhost:' + process.env.NC_DEV_HTTPS_PORT, loadUrlOpts);
     } else {
+        await mainWindow.loadFile(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'run-loading.html'));
         const nextPort = await portfinder.getPortPromise({ port: 4100 });
         const serverPath = path.join(__dirname, 'standalone', 'server.js');
         nextProcess = fork(serverPath, [], {

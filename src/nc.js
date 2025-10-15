@@ -638,6 +638,8 @@ async function init() {
                 await fse.copy(path.join(path.dirname(__dirname), 'resources', 'server.key'), path.join(cwd, 'www', 'resources', 'server.key'));
             }
 
+            await fse.copy(path.join(path.dirname(__dirname), 'resources', 'run-loading.html'), path.join(cwd, 'www', 'resources', 'run-loading.html'));
+
             shell.exec('npx cordova build electron --debug');
 
         } else {
