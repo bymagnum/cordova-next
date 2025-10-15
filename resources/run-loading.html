@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Preparing application...</title>
+    <style>
+        body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: system-ui, sans-serif; background: #ffffff; color: #0f172a; opacity: 0; transition: opacity 360ms ease; }
+        body.ready { opacity: 1; }
+        body.fade-out { opacity: 0; transition-duration: 260ms; }
+        .card { padding: 2.6rem 3.2rem; border-radius: 20px; background: #ffffff; box-shadow: 0 26px 54px rgba(15, 23, 42, 0.2); border: 1px solid rgba(15, 23, 42, 0.08); text-align: center; transform: translateY(8px); opacity: 0; transition: opacity 320ms ease 100ms, transform 320ms ease 100ms; }
+        body.ready .card { opacity: 1; transform: translateY(0); }
+        body.fade-out .card { opacity: 0; transform: translateY(-8px); transition-duration: 220ms; }
+        .badge { width: 86px; height: 86px; margin: 0 auto 1.65rem; }
+        h1 { font-size: 1.32rem; margin: 0 0 0.45rem; letter-spacing: 0.045em; }
+        p { margin: 0; color: rgba(15, 23, 42, 0.64); }
+        .pulse { animation: pulse 2.4s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.07); opacity: 0.82; } }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <svg class="badge pulse" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="ncGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#38bdf8" />
+                    <stop offset="100%" stop-color="#6366f1" />
+                </linearGradient>
+            </defs>
+            <circle cx="60" cy="60" r="54" fill="none" stroke="url(#ncGradient)" stroke-width="6" opacity="0.35" />
+            <circle cx="60" cy="60" r="42" fill="url(#ncGradient)" opacity="0.2" />
+            <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
+                  font-family="Segoe UI, system-ui, sans-serif" font-size="42" font-weight="600"
+                  fill="#0f172a" letter-spacing="0.06em">
+                NC
+            </text>
+        </svg>
+        <h1>Packaging with Cordova Next</h1>
+        <p>Hold tight — assets are being prepared for launch.</p>
+    </div>
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            requestAnimationFrame(function () {
+                document.body.classList.add('ready');
+            });
+        });
+        window.addEventListener('beforeunload', function () {
+            document.body.classList.add('fade-out');
+        });
+    </script>
+</body>
+</html>

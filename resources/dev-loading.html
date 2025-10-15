@@ -4,40 +4,15 @@
     <meta charset="UTF-8">
     <title>Starting dev server...</title>
     <style>
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: system-ui, sans-serif;
-            background: #0f172a;
-            color: #f8fafc;
-        }
-        .card {
-            padding: 2rem 2.5rem;
-            border-radius: 16px;
-            background: rgba(15, 23, 42, 0.85);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
-            text-align: center;
-        }
-        .spinner {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: 6px solid rgba(148, 163, 184, 0.2);
-            border-top-color: #38bdf8;
-            margin: 0 auto 1.5rem;
-            animation: spin 1s linear infinite;
-        }
-        h1 {
-            font-size: 1.4rem;
-            margin: 0 0 0.4rem;
-        }
-        p {
-            margin: 0;
-            opacity: 0.7;
-        }
+        body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: system-ui, sans-serif; background: #ffffff; color: #111827; opacity: 0; transition: opacity 320ms ease; }
+        body.ready { opacity: 1; }
+        .card { padding: 2rem 2.6rem; border-radius: 18px; background: #ffffff; box-shadow: 0 18px 42px rgba(17, 24, 39, 0.16); border: 1px solid rgba(17, 24, 39, 0.08); text-align: center; transform: translateY(6px); opacity: 0; transition: opacity 300ms ease 80ms, transform 320ms ease 80ms; }
+        body.ready .card { opacity: 1; transform: translateY(0); }
+        body.fade-out { opacity: 0; transition-duration: 240ms; }
+        body.fade-out .card { opacity: 0; transform: translateY(-6px); transition-duration: 220ms; }
+        .spinner { width: 64px; height: 64px; border-radius: 50%; border: 6px solid rgba(37, 99, 235, 0.18); border-top-color: #2563eb; margin: 0 auto 1.6rem; animation: spin 1s linear infinite; }
+        h1 { font-size: 1.35rem; margin: 0 0 0.5rem; letter-spacing: 0.015em; }
+        p { margin: 0; color: rgba(17, 24, 39, 0.65); }
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
@@ -49,5 +24,15 @@
         <h1>Starting dev server...</h1>
         <p>HTTPS proxy is spinning up Next.js.</p>
     </div>
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            requestAnimationFrame(function () {
+                document.body.classList.add('ready');
+            });
+        });
+        window.addEventListener('beforeunload', function () {
+            document.body.classList.add('fade-out');
+        });
+    </script>
 </body>
 </html>
