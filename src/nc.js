@@ -23,15 +23,6 @@ async function init() {
     
     const packageRoot = require(path.join(__dirname, '..', 'package.json'));
 
-    if (!fse.existsSync(path.join(cwd, 'package.json'))) {
-
-        console.log(chalk.red('package.json does not exist in the project'));
-
-        return;
-    }
-
-    const packageCwd = require(path.join(cwd, 'package.json'));
-
     program.command('create').description('Creates an application of the current directory, ready to work');
 
     program.command('dev').argument('<android|web|electron>').description('Running two development servers, on http and https. The application installed for development listens to https');
@@ -79,9 +70,18 @@ async function init() {
         process.exit(1);
     });
 
-    let ncConfig, ncConfigPortHttp, ncConfigPortHttps;
+    let ncConfig, ncConfigPortHttp, ncConfigPortHttps, packageCwd;
     
     if (pkgs.indexOf('create') === -1) {
+
+        if (!fse.existsSync(path.join(cwd, 'package.json'))) {
+
+            console.log(chalk.red('package.json does not exist in the project'));
+
+            return;
+        }
+
+        packageCwd = require(path.join(cwd, 'package.json'));
 
         if (!fse.existsSync(path.join(cwd, 'nc.config.json'))) {
 
