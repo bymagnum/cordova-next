@@ -125,7 +125,7 @@ async function createWindow() {
         const portfinder = require('portfinder');
         const ncConfig = require(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'nc.config.json'));
         const pageLoadingCfg = ncConfig?.electron?.pageLoading ?? {};
-        const loadingEnabled = pageLoadingCfg?.app?.enabled ?? false;
+        const loadingEnabled = pageLoadingCfg?.app?.enabled ?? true;
         if (loadingEnabled === true) {
             await mainWindow.loadFile(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'run-loading.html'));
         }
