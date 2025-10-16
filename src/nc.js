@@ -638,7 +638,29 @@ async function init() {
                 await fse.copy(path.join(path.dirname(__dirname), 'resources', 'server.key'), path.join(cwd, 'www', 'resources', 'server.key'));
             }
 
-            await fse.copy(path.join(path.dirname(__dirname), 'resources', 'run-loading.html'), path.join(cwd, 'www', 'resources', 'run-loading.html'));
+            const pageLoading = ncConfig?.electron?.pageLoading ?? {};
+            const appEnabled = pageLoading?.app?.enabled ?? false;
+            const appPath = pageLoading?.app?.path ?? '';
+            if (typeof appPath !== 'string') {
+                console.log(chalk.red('pageLoading.app.path must be a string when enabled.'));
+                return;
+            }
+            if (appEnabled === true) {
+                const appSource = path.join(cwd, appPath);
+                if (!fse.existsSync(appSource)) {
+                    console.log(chalk.red('Custom app loading page not found: ', appSource));
+                    return;
+                }
+                if (path.extname(appSource).toLowerCase() !== '.html') {
+                    console.log(chalk.red('Custom app loading page must be an HTML file: ', appSource));
+                    return;
+                }
+                await fse.copy(appSource, path.join(cwd, 'www', 'resources', 'run-loading.html'));
+            } else {
+                await fse.copy(path.join(path.dirname(__dirname), 'resources', 'run-loading.html'), path.join(cwd, 'www', 'resources', 'run-loading.html'));
+            }
+
+            await fse.copy(path.join(cwd, 'nc.config.json'), path.join(cwd, 'www', 'resources', 'nc.config.json'));
 
             shell.exec('npx cordova build electron --debug');
 

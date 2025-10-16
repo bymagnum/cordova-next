@@ -46,6 +46,8 @@ if (process.env.NC_PACKAGE_PATH == '') {
     process.env.NC_PACKAGE_PATH = __dirname;
 }
 
+const ncConfig = require(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'nc.config.json'));
+
 // Module to control application life, browser window and tray.
 const { app, BrowserWindow, protocol, ipcMain, net } = require('electron');
 
@@ -123,7 +125,11 @@ async function createWindow() {
         await new Promise((resolve) => setTimeout(resolve, 3000));
         await mainWindow.loadURL('https://localhost:' + process.env.NC_DEV_HTTPS_PORT, loadUrlOpts);
     } else {
-        await mainWindow.loadFile(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'run-loading.html'));
+        const pageLoadingCfg = ncConfig?.electron?.pageLoading ?? {};
+        const loadingEnabled = pageLoadingCfg?.app?.enabled ?? false;
+        if (loadingEnabled === true) {
+            await mainWindow.loadFile(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'run-loading.html'));
+        }
         const nextPort = await portfinder.getPortPromise({ port: 4100 });
         const serverPath = path.join(__dirname, 'standalone', 'server.js');
         nextProcess = fork(serverPath, [], {
