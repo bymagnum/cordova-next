@@ -22,7 +22,6 @@ const path = require('path');
 const https = require('https');
 const http = require('http');
 const proxy = require('http-proxy');
-const portfinder = require('portfinder');
 const { fork } = require('child_process');
 const { URL } = require('url');
 const { cordova } = require('./package.json');
@@ -45,8 +44,6 @@ process.env.NC_PACKAGE_PATH = process.env.NC_PACKAGE_PATH ?? '';
 if (process.env.NC_PACKAGE_PATH == '') {
     process.env.NC_PACKAGE_PATH = __dirname;
 }
-
-const ncConfig = require(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'nc.config.json'));
 
 // Module to control application life, browser window and tray.
 const { app, BrowserWindow, protocol, ipcMain, net } = require('electron');
@@ -125,6 +122,8 @@ async function createWindow() {
         await new Promise((resolve) => setTimeout(resolve, 3000));
         await mainWindow.loadURL('https://localhost:' + process.env.NC_DEV_HTTPS_PORT, loadUrlOpts);
     } else {
+        const portfinder = require('portfinder');
+        const ncConfig = require(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'nc.config.json'));
         const pageLoadingCfg = ncConfig?.electron?.pageLoading ?? {};
         const loadingEnabled = pageLoadingCfg?.app?.enabled ?? false;
         if (loadingEnabled === true) {
