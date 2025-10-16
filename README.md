@@ -1,12 +1,21 @@
-# Cordova and Next.js. Optional - Framework7
+# Cordova and Next.js
 
 Use this package if you want to configure an application running Next, Cordova.
 Real-time development mode on an emulator device, phone, browser.
 This package allows you to test in real time, write code together with plugins. And only after changing/refining the plugin code will the application need to be recompiled. Therefore, you can write code calmly, with ready-made plugins in real time on the emulator with a quick page reload.
-In addition, this package has a full extension that allows you to use other packages of the framework without resorting to global changes. It is enough to remove some unnecessary details.
+In addition, this package has a full extension that allows you to use other packages of the framework without resorting to global changes.
 Added support (starting from version 0.0.4) for the Android - ADB platform. There is no ADB implementation server in this package, so it must be pre-installed on your computer. This is a client for the <a href="https://developer.android.com/studio/command-line/adb.html" target="_blank">Android Debug Bridge</a> server.
 
-_You can help the project with the amount in Telegram: @bymagnum_
+
+
+### Features
+
+- Real-time plugin development: hot reload on device, emulator, or browser without rebuilding.
+- Full Electron workflow: `nc dev`, `nc run`, and `nc release` all work out of the box.
+- Optional custom splash screens defined in `nc.config.json`.
+- Cordova and Next.js commands available via `npx` alongside `nc`.
+
+
 
 # Install
 
@@ -19,19 +28,6 @@ or
 ```
 yarn global add cordova-next
 ```
-
-
-
-# Available platforms
-
-Platform | Description
--- | --
-`web` | &#9745; Available during development
-`android` | &#9745; (Work is underway)
-`ios` | &#9744; (Work is underway)
-`electron` | &#9745; (Work is underway)
-
-Platforms that are not marked require improvement
 
 
 
@@ -52,7 +48,7 @@ Command | Description
 `nc dev <platform>` | Running two development servers, on http and https. The application installed for development listens to https
 `nc build <platform>` | Building a project for deployment on a device for further dev mode development
 `nc run <platform>` | Full build of the debug version project
-`nc release <platform>` | Complete project build for release (Work is underway)
+`nc release <platform>` | Complete project build for release
 `nc platform <action> <platform>` | Add / remove a platform
 `nc plugin <action> <plugin>` | Add / remove a plugin
 
@@ -61,9 +57,9 @@ Command | Description
 Platform | Description
 -- | --
 `web` | &#9745; Available during development
-`android` | &#9745; (Work is underway)
-`ios` | &#9744; (Work is underway)
-`electron` | &#9745; (Work is underway)
+`android` | &#9745; (beta)
+`ios` | &#9744; (Not available yet)
+`electron` | &#9745; (beta)
 
 &nbsp;
 
@@ -92,14 +88,17 @@ In the process of development, `nc dev web` - cordova.js is not embedded in the 
 
 &nbsp;
 
-# Package.json in the deployed application
+# nc.config.json in the deployed application
 
 Parameter | Default | Description
 -- | -- | --
-`nc.port.http` | 9090 | Development port http
-`nc.port.https` | 9091 | Development port https
-`nc.electron.browserWindow` | Cordova Electron | Electron options
-`nc.electron.browserWindowInstance.loadURL.url` | `index.html` | Except for the development mode, the default page is
+`dev.port.http` | 9090 | Development port http
+`dev.port.https` | 9091 | Development port https
+`electron.browserWindow` | Cordova Electron | Electron options
+`electron.pageLoading.app.enabled` | true | Determining whether a splash screen is enabled
+`electron.pageLoading.app.path` | '' | Local splash screen path in .html format
+
+> The custom splash Electron page must be an existing `.html` file. It is copied into `www/resources/run-loading.html` during `nc run` / `nc release`.
 
 &nbsp;
 &nbsp;
@@ -121,5 +120,5 @@ Everything else - You can use it as if you used cordova, next.
 Two servers are used in this package for the following purposes: WebRTC requires an SSL connection, as well as several other technologies that require a secure connection and do not allow development without SSL. Https is also a direct working ready-made tool.
 
 
-
+Support the project via Telegram: @bymagnum
 
