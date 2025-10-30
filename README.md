@@ -98,7 +98,7 @@ Parameter | Default | Description
 `electron.pageLoading.app.enabled` | true | Determining whether a splash screen is enabled
 `electron.pageLoading.app.path` | '' | Local splash screen path in .html format
 
-> The custom splash Electron page must be an existing `.html` file. It is copied into `www/resources/run-loading.html` during `nc run` / `nc release`.
+> The custom splash Electron page must be an existing `.html` file.
 
 &nbsp;
 &nbsp;

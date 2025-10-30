@@ -162,6 +162,12 @@ async function init() {
 
         }
 
+        if (!process.env.NC_PROJECT_PATH) {
+
+            process.env.NC_PROJECT_PATH = cwd;
+
+        }
+
         if (pkgs.indexOf('web') !== -1) {
 
             process.env.CORDOVA_NEXT_PLATFORM = 'web';
@@ -638,6 +644,7 @@ async function init() {
                 await fse.copy(path.join(path.dirname(__dirname), 'resources', 'server.key'), path.join(cwd, 'www', 'resources', 'server.key'));
             }
 
+            // copy custom loading page
             const pageLoading = ncConfig?.electron?.pageLoading ?? {};
             const appEnabled = pageLoading?.app?.enabled ?? false;
             const appPath = pageLoading?.app?.path ?? '';

@@ -45,6 +45,11 @@ if (process.env.NC_PACKAGE_PATH == '') {
     process.env.NC_PACKAGE_PATH = __dirname;
 }
 
+process.env.NC_PROJECT_PATH = process.env.NC_PROJECT_PATH ?? '';
+if (process.env.NC_PROJECT_PATH == '') {
+    process.env.NC_PROJECT_PATH =  path.resolve(__dirname, '..', '..', '..');
+}
+
 // Module to control application life, browser window and tray.
 const { app, BrowserWindow, protocol, ipcMain, net } = require('electron');
 
@@ -117,7 +122,16 @@ async function createWindow() {
     const loadUrlOpts = Object.assign({}, cdvElectronSettings.browserWindowInstance.loadURL.options);
 
     if (process.env.NODE_ENV === 'development') {
-        await mainWindow.loadFile(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'dev-loading.html'));
+        
+        const ncConfig = require(path.join(process.env.NC_PROJECT_PATH, 'nc.config.json'));
+        const pageLoadingCfg = ncConfig?.electron?.pageLoading ?? {};
+        const loadingEnabled = pageLoadingCfg?.app?.enabled ?? true;
+        const appPath = pageLoadingCfg?.app?.path ?? '';
+        if (loadingEnabled === true && typeof appPath === 'string' && fs.existsSync(appPath)) {
+            await mainWindow.loadFile(path.join(process.env.NC_PROJECT_PATH, appPath));
+        } else {
+            await mainWindow.loadFile(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'dev-loading.html'));
+        }
         await waitForServer('https://localhost:' + process.env.NC_DEV_HTTPS_PORT);
         await new Promise((resolve) => setTimeout(resolve, 3000));
         await mainWindow.loadURL('https://localhost:' + process.env.NC_DEV_HTTPS_PORT, loadUrlOpts);
