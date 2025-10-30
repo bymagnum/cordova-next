@@ -258,7 +258,7 @@ async function startHttpsProxy(httpPort, httpsPort) {
     await new Promise((resolve) => {
         _startHttpsProxy.listen(httpsPort, () => {
             if (process.env.NODE_ENV === 'development') {
-                console.log('cordova-next: HTTPS dev proxy -> https://localhost:', httpsPort);
+                console.log('cordova-next: HTTPS dev proxy -> https://localhost:' + httpsPort);
             }
             resolve();
         });
