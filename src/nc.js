@@ -331,6 +331,32 @@ async function init() {
                 
                     }
 
+                    const depsElectron = packageRoot?.platformDependencies?.electron || {};
+                    if (Object.keys(depsElectron).length) {
+                        const electronRoot = path.join(cwd, 'platforms', 'electron', 'www');
+                        const packageElectron = path.join(electronRoot, 'package.json');
+                        const electronPkg = JSON.parse(await fse.promises.readFile(packageElectron, 'utf8'));
+                        electronPkg.dependencies = electronPkg.dependencies || {};
+                        const missing = [];
+                        for (const [name, version] of Object.entries(depsElectron)) {
+                            if (!electronPkg.dependencies[name]) {
+                                electronPkg.dependencies[name] = version;
+                            }
+                            const moduleDir = path.join(electronRoot, 'node_modules', name);
+                            if (!(await fse.pathExists(moduleDir))) {
+                                missing.push(name + '@' + version);
+                            }
+                        }
+                        if (missing.length) {
+                            await fse.promises.writeFile(packageElectron, JSON.stringify(electronPkg, null, 2));
+                            const result = shell.exec('npm install --prefix ' + electronRoot + ' ' + missing.join(' '), { async: false, silent: false });
+                            if (result.code !== 0) {
+                                console.log(chalk.red('Failed to install Electron platform dependencies'));
+                                process.exit(1);
+                            }
+                        }
+                    }
+
                     const childEletron = shell.exec('npx cordova run electron --nobuild', { async: true, silent: true });
 
                     let electronStartedLogged = false;
@@ -631,7 +657,7 @@ async function init() {
                         needInstall = true;
                     }
                 }
-                 if (needInstall) {
+                if (needInstall) {
                     await fse.promises.writeFile(packageElectron, JSON.stringify(electronPkg, null, 2));
                 }
             }
@@ -788,7 +814,7 @@ async function init() {
                         needInstall = true;
                     }
                 }
-                 if (needInstall) {
+                if (needInstall) {
                     await fse.promises.writeFile(packageElectron, JSON.stringify(electronPkg, null, 2));
                 }
             }
