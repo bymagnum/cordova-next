@@ -70,7 +70,7 @@ async function init() {
         process.exit(1);
     });
 
-    let ncConfig, ncConfigPortHttp, ncConfigPortHttps, packageCwd;
+    let ncConfig, ncConfigPortHttp, ncConfigPortHttps, packageCwd, ncConfigSslDev;
     
     if (pkgs.indexOf('create') === -1) {
 
@@ -97,6 +97,8 @@ async function init() {
     
         ncConfigPortHttps = ncConfig?.dev?.port?.https ?? 9091;
     
+        ncConfigSslDev = ncConfig?.electron?.ssl?.development?.allowInsecure ?? true;
+
         process.env.NC_DEV_HTTP_PORT = ncConfigPortHttp;
 
         process.env.NC_DEV_HTTPS_PORT = ncConfigPortHttps;
@@ -233,6 +235,12 @@ async function init() {
             }
 
             await validateNextConfig(cwd, { requireStandalone: true, requireDistDir: true });
+
+            if (ncConfigSslDev === false) {
+
+                process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+            }
 
         } else {
 

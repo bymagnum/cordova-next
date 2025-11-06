@@ -53,7 +53,17 @@ if (process.env.NC_PROJECT_PATH == '') {
 // Module to control application life, browser window and tray.
 const { app, BrowserWindow, BrowserView, protocol, ipcMain, net } = require('electron');
 
-app.commandLine.appendSwitch('ignore-certificate-errors');
+let ncConfig;
+let sslAllowInsecure = true;
+if (process.env.NODE_ENV === 'development') {
+    ncConfig = require(path.join(process.env.NC_PROJECT_PATH, 'nc.config.json'));
+    sslAllowInsecure = ncConfig?.electron?.ssl?.development?.allowInsecure ?? true;
+} else {
+    ncConfig = require(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'nc.config.json'));
+}
+if (sslAllowInsecure === false) {
+    app.commandLine.appendSwitch('ignore-certificate-errors');
+}
 
 // Electron settings from .json file.
 const cdvElectronSettings = require('./cdv-electron-settings.json');
@@ -147,7 +157,6 @@ async function createWindow() {
     const loadUrlOpts = Object.assign({}, cdvElectronSettings.browserWindowInstance.loadURL.options);
 
     if (process.env.NODE_ENV === 'development') {
-        const ncConfig = require(path.join(process.env.NC_PROJECT_PATH, 'nc.config.json'));
         const pageLoadingCfg = ncConfig?.electron?.pageLoading ?? {};
         const loadingEnabled = pageLoadingCfg?.app?.enabled ?? true;
         const appPath = pageLoadingCfg?.app?.path ?? '';
@@ -191,7 +200,6 @@ async function createWindow() {
         await mainWindow.loadURL('https://localhost:' + process.env.NC_DEV_HTTPS_PORT, loadUrlOpts);
     } else {
         const portfinder = require('portfinder');
-        const ncConfig = require(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'nc.config.json'));
         const pageLoadingCfg = ncConfig?.electron?.pageLoading ?? {};
         const loadingEnabled = pageLoadingCfg?.app?.enabled ?? true;
         const overlayEnabled = pageLoadingCfg?.app?.overlay?.enabled ?? false;

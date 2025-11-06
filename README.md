@@ -131,6 +131,7 @@ Parameter | Default | Description
 `electron.pageLoading.app.path` | '' | Local splash screen path in .html format
 `electron.pageLoading.app.overlay.enabled` | false | Enable BrowserView overlay (splash over main window)
 `electron.pageLoading.app.overlay.duration` | 300 | Overlay fade-out duration in milliseconds
+`electron.ssl.development.allowInsecure` | true | TLS verification enabled for Next dev (set to false to disable checks for self-signed in SSR)
 
 > The custom splash Electron page must be an existing `.html` file.
 
