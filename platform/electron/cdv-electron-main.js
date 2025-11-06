@@ -51,7 +51,7 @@ if (process.env.NC_PROJECT_PATH == '') {
 }
 
 // Module to control application life, browser window and tray.
-const { app, BrowserWindow, protocol, ipcMain, net } = require('electron');
+const { app, BrowserWindow, BrowserView, protocol, ipcMain, net } = require('electron');
 
 app.commandLine.appendSwitch('ignore-certificate-errors');
 
@@ -90,6 +90,31 @@ if (!isFileProtocol) {
     }]);
 }
 
+let preloaderView;
+let overlayDuration = 300;
+ipcMain.on('react-ready', () => {
+    if (!preloaderView) return;
+    preloaderView.webContents.executeJavaScript(`
+        const el = document.body;
+        const duration = ${overlayDuration};
+        const start = performance.now();
+        function tick(now) {
+            const progress = Math.min(1, (now - start) / duration);
+            el.style.opacity = 1 - progress;
+            if (progress < 1) {
+                requestAnimationFrame(tick);
+            }
+        }
+        requestAnimationFrame(tick);
+    `);
+    setTimeout(() => {
+        const owner = BrowserWindow.fromWebContents(preloaderView.webContents);
+        if (owner) owner.removeBrowserView(preloaderView);
+        preloaderView.webContents.close();
+        preloaderView = null;
+    }, overlayDuration + 20);
+});
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -122,11 +147,40 @@ async function createWindow() {
     const loadUrlOpts = Object.assign({}, cdvElectronSettings.browserWindowInstance.loadURL.options);
 
     if (process.env.NODE_ENV === 'development') {
-        
         const ncConfig = require(path.join(process.env.NC_PROJECT_PATH, 'nc.config.json'));
         const pageLoadingCfg = ncConfig?.electron?.pageLoading ?? {};
         const loadingEnabled = pageLoadingCfg?.app?.enabled ?? true;
         const appPath = pageLoadingCfg?.app?.path ?? '';
+        const overlayEnabled = pageLoadingCfg?.app?.overlay?.enabled ?? false;
+        overlayDuration = typeof pageLoadingCfg?.app?.overlay?.duration === 'number' ? pageLoadingCfg?.app?.overlay?.duration: 300;
+        if (overlayEnabled === true) {
+            const { width, height } = mainWindow.getBounds();
+            mainWindow.on('resize', () => {
+                if (!preloaderView) return;
+                const { width, height } = mainWindow.getBounds();
+                preloaderView.setBounds({ x: 0, y: 0, width, height });
+            });
+            preloaderView = new BrowserView({ webPreferences: { contextIsolation: true, sandbox: false } });
+            mainWindow.addBrowserView(preloaderView);
+            preloaderView.setBounds({ x: 0, y: 0, width, height });
+            preloaderView.setAutoResize({ width: true, height: true });
+            preloaderView.webContents.on('page-title-updated', (_, title) => {
+                mainWindow.setTitle(title);
+            });
+        }
+        if (loadingEnabled === true && typeof appPath === 'string' && fs.existsSync(appPath)) {
+            if (overlayEnabled === true) {
+                await preloaderView.webContents.loadFile(path.join(process.env.NC_PROJECT_PATH, appPath));
+            } else {
+                await mainWindow.loadFile(path.join(process.env.NC_PROJECT_PATH, appPath));
+            }
+        } else {
+            if (overlayEnabled === true) {
+                await preloaderView.webContents.loadFile(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'dev-loading.html'));
+            } else {
+                await mainWindow.loadFile(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'dev-loading.html'));
+            }
+        }
         if (loadingEnabled === true && typeof appPath === 'string' && fs.existsSync(appPath)) {
             await mainWindow.loadFile(path.join(process.env.NC_PROJECT_PATH, appPath));
         } else {
@@ -140,8 +194,29 @@ async function createWindow() {
         const ncConfig = require(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'nc.config.json'));
         const pageLoadingCfg = ncConfig?.electron?.pageLoading ?? {};
         const loadingEnabled = pageLoadingCfg?.app?.enabled ?? true;
+        const overlayEnabled = pageLoadingCfg?.app?.overlay?.enabled ?? false;
+        overlayDuration = typeof pageLoadingCfg?.app?.overlay?.duration === 'number' ? pageLoadingCfg?.app?.overlay?.duration : 300;
+        if (overlayEnabled === true) {
+            const { width, height } = mainWindow.getBounds();
+            mainWindow.on('resize', () => {
+                if (!preloaderView) return;
+                const { width, height } = mainWindow.getBounds();
+                preloaderView.setBounds({ x: 0, y: 0, width, height });
+            });
+            preloaderView = new BrowserView({ webPreferences: { contextIsolation: true, sandbox: false } });
+            mainWindow.addBrowserView(preloaderView);
+            preloaderView.setBounds({ x: 0, y: 0, width, height });
+            preloaderView.setAutoResize({ width: true, height: true });
+            preloaderView.webContents.on('page-title-updated', (_, title) => {
+                mainWindow.setTitle(title);
+            });
+        }
         if (loadingEnabled === true) {
-            await mainWindow.loadFile(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'run-loading.html'));
+            if (overlayEnabled === true) {
+                await preloaderView.webContents.loadFile(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'run-loading.html'));
+            } else {
+                await mainWindow.loadFile(path.join(process.env.NC_PACKAGE_PATH, 'resources', 'run-loading.html'));
+            }
         }
         const nextPort = await portfinder.getPortPromise({ port: 4100 });
         const serverPath = path.join(__dirname, 'standalone', 'server.js');

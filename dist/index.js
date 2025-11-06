@@ -1,12 +1,14 @@
 "use strict";
 
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.ScriptCordova = ScriptCordova;
-exports["default"] = void 0;
-var _react = _interopRequireDefault(require("react"));
-function _interopRequireDefault(e) { return e && e.__esModule ? e : { "default": e }; }
+exports.useElectronOverlay = useElectronOverlay;
+var _react = _interopRequireWildcard(require("react"));
+function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
+function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
 function ScriptCordova() {
   var _process$env$NODE_ENV, _process$env, _process$env$CORDOVA_, _process$env2;
   var NODE_ENV = (_process$env$NODE_ENV = (_process$env = process.env) === null || _process$env === void 0 ? void 0 : _process$env.NODE_ENV) !== null && _process$env$NODE_ENV !== void 0 ? _process$env$NODE_ENV : null;
@@ -22,6 +24,12 @@ function ScriptCordova() {
     });
   }
 }
-function Init() {}
-var _default = exports["default"] = Init;
-//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfcmVhY3QiLCJfaW50ZXJvcFJlcXVpcmVEZWZhdWx0IiwicmVxdWlyZSIsImUiLCJfX2VzTW9kdWxlIiwiU2NyaXB0Q29yZG92YSIsIl9wcm9jZXNzJGVudiROT0RFX0VOViIsIl9wcm9jZXNzJGVudiIsIl9wcm9jZXNzJGVudiRDT1JET1ZBXyIsIl9wcm9jZXNzJGVudjIiLCJOT0RFX0VOViIsInByb2Nlc3MiLCJlbnYiLCJDT1JET1ZBX05FWFRfUExBVEZPUk0iLCJjcmVhdGVFbGVtZW50Iiwic3JjIiwiSW5pdCIsIl9kZWZhdWx0IiwiZXhwb3J0cyJdLCJzb3VyY2VzIjpbIi4uL2xpYi9pbmRleC5qcyJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgUmVhY3QgZnJvbSAncmVhY3QnO1xyXG5cclxuZnVuY3Rpb24gU2NyaXB0Q29yZG92YSgpIHtcclxuXHJcbiAgICBjb25zdCBOT0RFX0VOViA9IHByb2Nlc3MuZW52Py5OT0RFX0VOViA/PyBudWxsO1xyXG4gICAgY29uc3QgQ09SRE9WQV9ORVhUX1BMQVRGT1JNID0gcHJvY2Vzcy5lbnY/LkNPUkRPVkFfTkVYVF9QTEFURk9STSA/PyBudWxsO1xyXG5cclxuICAgIGlmIChDT1JET1ZBX05FWFRfUExBVEZPUk0gPT09ICd3ZWInKSByZXR1cm47XHJcblxyXG4gICAgaWYgKE5PREVfRU5WID09PSAncHJvZHVjdGlvbicpIHtcclxuXHJcbiAgICAgICAgcmV0dXJuIChcclxuICAgICAgICAgICAgPHNjcmlwdCBzcmM9XCIvY29yZG92YS5qc1wiPjwvc2NyaXB0PlxyXG4gICAgICAgICk7XHJcblxyXG4gICAgfSBlbHNlIGlmIChOT0RFX0VOViA9PT0gJ2RldmVsb3BtZW50Jykge1xyXG5cclxuICAgICAgICByZXR1cm4gKFxyXG4gICAgICAgICAgICA8c2NyaXB0IHNyYz1cIi9fbmV4dC9zdGF0aWMvY2h1bmtzL2NvcmRvdmEuanNcIj48L3NjcmlwdD5cclxuICAgICAgICApO1xyXG5cclxuICAgIH1cclxuXHJcbn1cclxuXHJcbmZ1bmN0aW9uIEluaXQoKSB7XHJcbiAgICBcclxuXHJcbn1cclxuXHJcbmV4cG9ydCB7IFNjcmlwdENvcmRvdmEgfTtcclxuXHJcbmV4cG9ydCBkZWZhdWx0IEluaXQ7Il0sIm1hcHBpbmdzIjoiOzs7Ozs7O0FBQUEsSUFBQUEsTUFBQSxHQUFBQyxzQkFBQSxDQUFBQyxPQUFBO0FBQTBCLFNBQUFELHVCQUFBRSxDQUFBLFdBQUFBLENBQUEsSUFBQUEsQ0FBQSxDQUFBQyxVQUFBLEdBQUFELENBQUEsZ0JBQUFBLENBQUE7QUFFMUIsU0FBU0UsYUFBYUEsQ0FBQSxFQUFHO0VBQUEsSUFBQUMscUJBQUEsRUFBQUMsWUFBQSxFQUFBQyxxQkFBQSxFQUFBQyxhQUFBO0VBRXJCLElBQU1DLFFBQVEsSUFBQUoscUJBQUEsSUFBQUMsWUFBQSxHQUFHSSxPQUFPLENBQUNDLEdBQUcsY0FBQUwsWUFBQSx1QkFBWEEsWUFBQSxDQUFhRyxRQUFRLGNBQUFKLHFCQUFBLGNBQUFBLHFCQUFBLEdBQUksSUFBSTtFQUM5QyxJQUFNTyxxQkFBcUIsSUFBQUwscUJBQUEsSUFBQUMsYUFBQSxHQUFHRSxPQUFPLENBQUNDLEdBQUcsY0FBQUgsYUFBQSx1QkFBWEEsYUFBQSxDQUFhSSxxQkFBcUIsY0FBQUwscUJBQUEsY0FBQUEscUJBQUEsR0FBSSxJQUFJO0VBRXhFLElBQUlLLHFCQUFxQixLQUFLLEtBQUssRUFBRTtFQUVyQyxJQUFJSCxRQUFRLEtBQUssWUFBWSxFQUFFO0lBRTNCLG9CQUNJVixNQUFBLFlBQUFjLGFBQUE7TUFBUUMsR0FBRyxFQUFDO0lBQWEsQ0FBUyxDQUFDO0VBRzNDLENBQUMsTUFBTSxJQUFJTCxRQUFRLEtBQUssYUFBYSxFQUFFO0lBRW5DLG9CQUNJVixNQUFBLFlBQUFjLGFBQUE7TUFBUUMsR0FBRyxFQUFDO0lBQWlDLENBQVMsQ0FBQztFQUcvRDtBQUVKO0FBRUEsU0FBU0MsSUFBSUEsQ0FBQSxFQUFHLENBR2hCO0FBQUMsSUFBQUMsUUFBQSxHQUFBQyxPQUFBLGNBSWNGLElBQUkiLCJpZ25vcmVMaXN0IjpbXX0=
+function useElectronOverlay(ready) {
+  (0, _react.useEffect)(function () {
+    var _window$electronBridg, _window$electronBridg2;
+    if (typeof window === 'undefined') return;
+    if (!ready) return;
+    (_window$electronBridg = window.electronBridge) === null || _window$electronBridg === void 0 || (_window$electronBridg2 = _window$electronBridg.notifyReactReady) === null || _window$electronBridg2 === void 0 || _window$electronBridg2.call(_window$electronBridg);
+  }, [ready]);
+}
+//# sourceMappingURL=index.js.map

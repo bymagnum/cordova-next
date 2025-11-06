@@ -73,18 +73,50 @@ Action | Description
 
 # cordova-next as a library
 
-You can use the package as a library. At the moment, only the following React components are available:
+You can use the package as a library. The following React exports are available:
 
-```
-import { ScriptCordova } from 'cordova-next';
+```js
+import { ScriptCordova, useElectronOverlay } from 'cordova-next';
 ```
 
-```
+### ScriptCordova
+
+```js
 <ScriptCordova />
 ```
-Imports cordova.js, a good option for using a component in one place is _document.js, but it is also possible to use it at your discretion, up to complete deletion, if you do not need it as a system script.
+Injects `cordova.js`. A good place to render this component once is `_document.js`, but you can include or remove it wherever you prefer if you don’t need it as a global script.
 
-In the process of development, `nc dev web` - cordova.js is not embedded in the page, while allowing you to easily develop an application in the browser. At the same time, you do not need to perform additional actions to remove the embedded component from the page.
+During development (`nc dev web`) `cordova.js` is not injected, which lets you develop in the browser without extra steps. You don’t need to remove the component manually for web development.
+
+### Overlay Hook (React)
+
+```
+useElectronOverlay(ready: boolean)
+```
+Hides the Electron BrowserView overlay (splash) when `ready === true`. Typical usage is to signal readiness after your app determines the auth state or completes initial data loading.
+
+Example:
+```js
+import { useElectronOverlay } from 'cordova-next';
+
+export function AppReadyGate({ ready }) {
+    useElectronOverlay(ready);
+    return null;
+}
+```
+
+Manual alternative (without the hook):
+```js
+import { useEffect } from 'react';
+
+export function AuthGate({ auth }) {
+    useEffect(() => {
+        if (typeof window === 'undefined' || auth === null) return;
+        window.electronBridge?.notifyReactReady?.();
+    }, [auth]);
+    return null;
+}
+```
 
 &nbsp;
 
@@ -97,6 +129,8 @@ Parameter | Default | Description
 `electron.browserWindow` | Cordova Electron | Electron options
 `electron.pageLoading.app.enabled` | true | Determining whether a splash screen is enabled
 `electron.pageLoading.app.path` | '' | Local splash screen path in .html format
+`electron.pageLoading.app.overlay.enabled` | false | Enable BrowserView overlay (splash over main window)
+`electron.pageLoading.app.overlay.duration` | 300 | Overlay fade-out duration in milliseconds
 
 > The custom splash Electron page must be an existing `.html` file.
 
