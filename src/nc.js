@@ -916,6 +916,10 @@ async function init() {
                 
                 console.log(chalk.green('cdv-electron-main.js has been copied to ', path.join(cwd, 'platforms', 'electron', 'platform_www')));
 
+                fse.copySync(path.join(path.dirname(__dirname), 'platform', 'electron', 'cdv-electron-preload.js'), path.join(cwd, 'platforms', 'electron', 'platform_www', 'cdv-electron-preload.js'));
+
+                console.log(chalk.green('cdv-electron-preload.js has been copied to ', path.join(cwd, 'platforms', 'electron', 'platform_www')));
+
             }
 
         } else {
